@@ -1,0 +1,13 @@
+# Consts
+
+export INSTALL_DIR=/home/$USER/Documents/centaur
+
+# Install
+
+echo "I am doing a thing"
+
+echo "I will be testing multiline stuff"
+
+echo "I finished testing"
+
+echo $INSTALL_DIR
