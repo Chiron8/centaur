@@ -1,4 +1,4 @@
-// probably MIT license. Maybe GNU GPL v3 but probably not
+// probably GNU GPL v3
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -11,33 +11,6 @@
 // - Create file to show what was installed
 // 
 // I will just do an example with echo commands instead of actually installing something
-
-int cat_command(bool new_command, size_t current_len, size_t line_len, size_t *capacity, char **command) {
-    if (concat_realloc(current_len, line_len, &capacity, &command) == -1) {
-        return -1;
-    }
-
-    if (new_command == true) {
-        if (concat_realloc(current_len, line_len, &capacity, &command) == -1) {
-            return -1;
-        }
-        strcat(command, " && ");
-        strcar(command, line);
-        continue;
-    } else {
-        // realloc memory if needed
-        if (concat_realloc(current_len, line_len, &capacity, &command) == -1) {
-            return -1;
-        }
-
-        // concatinate command + line
-        strcat(command, " ");
-        strcat(command, line);
-        current_len += line_len+1;
-
-    } 
-    return 0;
-}
 
 int concat_realloc(size_t current_len, size_t line_len, size_t *capacity, char **command) {
     // check if command needs more mem
@@ -53,6 +26,23 @@ int concat_realloc(size_t current_len, size_t line_len, size_t *capacity, char *
         *command = temp;
         *capacity = new_capacity;
     }
+    return 0;
+}
+
+int cat_command(bool new_command, size_t current_len, size_t line_len, size_t *capacity, char **command, char line[]) {
+    if (concat_realloc(current_len, line_len, capacity, command) == -1) {
+        return -1;
+    }
+
+    if (new_command == true) {
+        strcat(*command, " && ");
+        strcat(*command, line);
+    } else {
+        // concatinate command + line
+        strcat(*command, " ");
+        strcat(*command, line);
+        current_len += line_len+1;
+    } 
     return 0;
 }
 
@@ -83,19 +73,20 @@ int main(int argc, char *argv[]) {
     char *command = malloc(capacity);
     command[0] = '\0';
 
-    while(fgets(line, sizeof(line), fptr)) { // read lines one at a time
+    while (fgets(line, sizeof(line), fptr)) { // read lines one at a time
         line[strcspn(line, "\n")] = '\0'; // get rid of new line char
         size_t line_len = strlen(line);
 
         // blank line
         if (strlen(line) == 0) {
-            cat_command(true, current_len, line_len, &capacity, &command);
+            cat_command(true, current_len, line_len, &capacity, &command, line);
             continue;
         } else if (line[0] == '#') { // comment
+            printf("%s", "hello");
             continue;
         }
 
-        cat_command(true, current_len, line_len, &capacity, &command);
+        cat_command(false, current_len, line_len, &capacity, &command, line);
     }
     // execute last command
     system(command);
