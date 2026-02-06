@@ -12,6 +12,33 @@
 // 
 // I will just do an example with echo commands instead of actually installing something
 
+int cat_command(bool new_command, size_t current_len, size_t line_len, size_t *capacity, char **command) {
+    if (concat_realloc(current_len, line_len, &capacity, &command) == -1) {
+        return -1;
+    }
+
+    if (new_command == true) {
+        if (concat_realloc(current_len, line_len, &capacity, &command) == -1) {
+            return -1;
+        }
+        strcat(command, " && ");
+        strcar(command, line);
+        continue;
+    } else {
+        // realloc memory if needed
+        if (concat_realloc(current_len, line_len, &capacity, &command) == -1) {
+            return -1;
+        }
+
+        // concatinate command + line
+        strcat(command, " ");
+        strcat(command, line);
+        current_len += line_len+1;
+
+    } 
+    return 0;
+}
+
 int concat_realloc(size_t current_len, size_t line_len, size_t *capacity, char **command) {
     // check if command needs more mem
     if (current_len + line_len + 2 > *capacity) {
@@ -62,27 +89,13 @@ int main(int argc, char *argv[]) {
 
         // blank line
         if (strlen(line) == 0) {
-            system(command);
-            printf("%s\n", command);
-            command[0] = '\0';
-            current_len = 0;
+            cat_command(true, current_len, line_len, &capacity, &command);
+            continue;
+        } else if (line[0] == '#') { // comment
             continue;
         }
 
-        // ignore comments
-        if (line[0] == '#') {
-            continue;
-        }
-
-        // realloc memory if needed
-        if (concat_realloc(current_len, line_len, &capacity, &command) == -1) {
-            return -1;
-        }
-
-        // concatinate command + line
-        strcat(command, " ");
-        strcat(command, line);
-        current_len += line_len+1;
+        cat_command(true, current_len, line_len, &capacity, &command);
     }
     // execute last command
     system(command);
