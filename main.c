@@ -15,7 +15,7 @@
 
 int concat_realloc(size_t current_len, size_t line_len, size_t *capacity, char **command) {
     // check if command needs more mem
-    if (current_len + line_len + 2 > *capacity) {
+    if (current_len + line_len + 8 > *capacity) {
         size_t new_capacity = *capacity * 2;
         char *temp = realloc(*command, new_capacity);
         if (temp == NULL) { // out of memory
@@ -28,19 +28,20 @@ int concat_realloc(size_t current_len, size_t line_len, size_t *capacity, char *
     return 0;
 }
 
-int cat_command(bool new_command, size_t current_len, size_t line_len, size_t *capacity, char **command, char line[]) {
-    if (concat_realloc(current_len, line_len, capacity, command) == -1) {
+int cat_command(bool new_command, size_t *current_len, size_t line_len, size_t *capacity, char **command, char line[]) {
+    if (concat_realloc(*current_len, line_len, capacity, command) == -1) {
         return -1;
     }
 
     if (new_command == true) {
         strcat(*command, " && ");
         strcat(*command, line);
+        *current_len += line_len+4;
     } else {
         // concatinate command + line
         strcat(*command, " ");
         strcat(*command, line);
-        current_len += line_len+1;
+        *current_len += line_len+1;
     } 
     return 0;
 }
@@ -79,7 +80,7 @@ int main(int argc, char *argv[]) {
 
         // blank line
         if (strlen(line) == 0 || first == true) {
-            cat_command(false, current_len, line_len, &capacity, &command, line);
+            cat_command(false, &current_len, line_len, &capacity, &command, line);
             first = false;
             continue;
         } else if (line[0] == '#') { // comment
@@ -87,10 +88,9 @@ int main(int argc, char *argv[]) {
             continue;
         }
 
-        cat_command(true, current_len, line_len, &capacity, &command, line);
+        cat_command(true, &current_len, line_len, &capacity, &command, line);
     }
     // execute last command
-    printf("%s", command);
     system(command);
 
     fclose(fptr);
