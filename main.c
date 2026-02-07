@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 
 // Aim
 // Program that can:
@@ -18,8 +19,6 @@ int concat_realloc(size_t current_len, size_t line_len, size_t *capacity, char *
         size_t new_capacity = *capacity * 2;
         char *temp = realloc(*command, new_capacity);
         if (temp == NULL) { // out of memory
-            free(*command);
-            printf("Out of memory!");
             return -1;
         }
 
@@ -71,6 +70,7 @@ int main(int argc, char *argv[]) {
     size_t capacity = 128;
     size_t current_len = 0;
     char *command = malloc(capacity);
+    bool first = true;
     command[0] = '\0';
 
     while (fgets(line, sizeof(line), fptr)) { // read lines one at a time
@@ -78,17 +78,19 @@ int main(int argc, char *argv[]) {
         size_t line_len = strlen(line);
 
         // blank line
-        if (strlen(line) == 0) {
-            cat_command(true, current_len, line_len, &capacity, &command, line);
+        if (strlen(line) == 0 || first == true) {
+            cat_command(false, current_len, line_len, &capacity, &command, line);
+            first = false;
             continue;
         } else if (line[0] == '#') { // comment
             printf("%s", "hello");
             continue;
         }
 
-        cat_command(false, current_len, line_len, &capacity, &command, line);
+        cat_command(true, current_len, line_len, &capacity, &command, line);
     }
     // execute last command
+    printf("%s", command);
     system(command);
 
     fclose(fptr);
