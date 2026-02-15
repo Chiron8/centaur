@@ -29,7 +29,7 @@ int concat_realloc(size_t currentLen, size_t lineLen, size_t *capacity, char **c
 }
 
 int cat_command(bool newCommand, size_t *currentLen, size_t lineLen, size_t *capacity, char **command, char line[]) {
-    if (concat_realloc(*currentLen, lineLen, capacity, command) == -1) {
+    if (concat_realloc(*currentLen, lineLen, capacity, command) == 1) {
         return 1;
     }
 
@@ -74,8 +74,8 @@ int install(char package[]) {
     char path[150] = "/etc/centaur/packages/installed/";
     strcat(path, package);
 
-    if (access(path, F_OK) != 0) {
-        printf("%s\n", "Package already intalled, installing again.");
+    if (access(path, F_OK) == 0) {
+        printf("%s\n", "Package already installed, installing again.");
     } 
 
     // load package file
