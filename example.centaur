@@ -8,3 +8,5 @@ export HI=hello
 echo $HI
 
 echo "did it work?"
+
+echo "echo \"This is going into the uninsall file!\"" > sudo /etc/centaur/packages/uninstall/example.centaur 

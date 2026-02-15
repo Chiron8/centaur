@@ -19,7 +19,7 @@ int concat_realloc(size_t currentLen, size_t lineLen, size_t *capacity, char **c
         size_t newCapacity = *capacity * 2;
         char *temp = realloc(*command, newCapacity);
         if (temp == NULL) { // out of memory
-            return -1;
+            return 1;
         }
 
         *command = temp;
@@ -30,7 +30,7 @@ int concat_realloc(size_t currentLen, size_t lineLen, size_t *capacity, char **c
 
 int cat_command(bool newCommand, size_t *currentLen, size_t lineLen, size_t *capacity, char **command, char line[]) {
     if (concat_realloc(*currentLen, lineLen, capacity, command) == -1) {
-        return -1;
+        return 1;
     }
 
     if (newCommand == true) {
@@ -65,27 +65,12 @@ int write_file(char path[], char package[]) {
 int check_root() {
     if (geteuid() != 0) {
         printf("%s\n", "Please run as root.");
-        return -1;
+        exit(1);
     }
     return 0;
 }
 
-int main(int argc, char *argv[]) {
-    if (check_root() != 0) {
-        return -1;
-    }
-
-    // check if arg was passed
-    if (argc == 1) {
-        printf("%s\n", "Please enter package to install :)");
-        return -1;
-    }
-
-    // package var
-    char package[100];
-    strcpy(package, argv[1]);
-    strcat(package, ".centaur");
-
+int install(char package[]) {
     char path[150] = "/etc/centaur/packages/installed/";
     strcat(path, package);
 
@@ -98,7 +83,7 @@ int main(int argc, char *argv[]) {
 
     if (fptr == NULL) {
         printf("%s%s%s\n", "Unable to locate install script ", package, ". Perhaps you spelt it wrong?");
-        return -1;
+        exit(1);
     }
 
     // vars to make sure we have enough memory (I'm so cool)
@@ -122,7 +107,7 @@ int main(int argc, char *argv[]) {
             cat_command(true, &currentLen, lineLen, &capacity, &command, line);
         }
     }
-    // execute last command
+    printf("%s", command);
     system(command);
 
     fclose(fptr);
@@ -132,5 +117,37 @@ int main(int argc, char *argv[]) {
         write_file(path, package);
     } 
 
+    return 0;
+}
+
+int main(int argc, char *argv[]) {
+    check_root();
+    // check if arg was passed
+    if (argc != 3) {
+        printf("%s\n", "ERROR: enter both command and package name");
+        printf("%s\n", "USAGE: centaur [COMMAND] [PACKAGE]");
+        return 1;
+    }
+
+    // instruct var
+    char instruction[50];
+    strcpy(instruction, argv[1]);
+
+    // package var
+    char package[100];
+    strcpy(package, argv[2]);
+    strcat(package, ".centaur");
+
+    // why can't c do switch case for strings >:(
+    if (strcmp(instruction, "install") == 0) {
+        install(package);
+    }
+    else if (strcmp(instruction, "uninstall") == 0) {
+        printf("I haven't done that yet");
+    }
+    else {
+        printf("%s %s %s\n", "ERROR: instruction", instruction, "does not exist!");
+        return 1;
+    }
     return 0;
 }

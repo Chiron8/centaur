@@ -1,0 +1,1 @@
+echo "This is going into the uninsall file!" /etc/centaur/packages/uninstall/example
