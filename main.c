@@ -5,7 +5,6 @@
 #include <string.h>
 #include <stdbool.h>
 #include <unistd.h> // to check for root permissions and checks if file exists
-
 // Aim
 // Program that can:
 // - Read install script DONE!
@@ -63,10 +62,16 @@ int write_file(char path[], char package[]) {
     return 0;
 }
 
-int main(int argc, char *argv[]) {
-    //check for root permissions
+int check_root() {
     if (geteuid() != 0) {
         printf("%s\n", "Please run as root.");
+        return -1;
+    }
+    return 0;
+}
+
+int main(int argc, char *argv[]) {
+    if (check_root() != 0) {
         return -1;
     }
 
