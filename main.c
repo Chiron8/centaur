@@ -70,23 +70,15 @@ int check_root() {
     return 0;
 }
 
-int install(char package[]) {
-    char path[150] = "/etc/centaur/packages/installed/";
-    strcat(path, package);
+int read_execute(char file[]) {
 
-    if (access(path, F_OK) == 0) {
-        printf("%s\n", "Package already installed, installing again.");
-    } 
-
-    // load package file
-    FILE *fptr = fopen(package, "r");
+    // load file
+    FILE *fptr = fopen(file, "r");
 
     if (fptr == NULL) {
-        printf("%s%s%s\n", "Unable to locate install script ", package, ". Perhaps you spelt it wrong?");
+        printf("%s%s%s\n", "Unable to locate install file ", file, ". Perhaps you spelt it wrong?");
         exit(1);
     }
-
-    // vars to make sure we have enough memory (I'm so cool)
     char line[150];
     size_t capacity = 256;
     size_t currentLen = 0;
@@ -120,12 +112,46 @@ int install(char package[]) {
     system(command);
 
     fclose(fptr);
+    return 0;
+}
+
+int install(char package[]) {
+    char path[150] = "/etc/centaur/packages/installed/";
+    strcat(path, package);
+
+    if (access(path, F_OK) == 0) {
+        printf("%s\n", "Package already installed, installing again.");
+    } 
+
+    read_execute(package);
 
     // write db file if file does not already exist
     if (access(path, F_OK) != 0) {
         write_file(path, package);
     } 
 
+    return 0;
+}
+
+int uninstall(char package[]) {
+    char path[150] = "/etc/centaur/packages/uninstall/";
+    strcat(path, package);
+
+    if (access(path, F_OK) != 0) {
+        printf("%s %s %s\n", "Package", package, "not installed.");
+        exit(1);
+    } 
+
+    read_execute(path);
+
+    char command[500] = "sudo rm -f";
+    strcat(command, " /etc/centaur/packages/installed/");
+    strcat(command, package);
+    strcat(command, " && sudo rm -f /etc/centaur/packages/uninstall/");
+    strcat(command, package);
+
+    system(command); 
+    printf("%s\n", command);
     return 0;
 }
 
@@ -152,7 +178,7 @@ int main(int argc, char *argv[]) {
         install(package);
     }
     else if (strcmp(instruction, "uninstall") == 0) {
-        printf("I haven't done that yet");
+        uninstall(package);
     }
     else {
         printf("%s %s %s\n", "ERROR: instruction", instruction, "does not exist!");
