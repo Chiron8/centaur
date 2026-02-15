@@ -87,27 +87,36 @@ int install(char package[]) {
     }
 
     // vars to make sure we have enough memory (I'm so cool)
-    char line[101];
-    size_t capacity = 128;
+    char line[150];
+    size_t capacity = 256;
     size_t currentLen = 0;
     char *command = malloc(capacity);
-    bool first = true;
     command[0] = '\0';
+
+    bool prevBlank = false;
 
     while (fgets(line, sizeof(line), fptr)) { // read lines one at a time
         line[strcspn(line, "\n")] = '\0'; // get rid of new line char
         size_t lineLen = strlen(line);
 
-        // blank line
-        if (strlen(line) == 0 || first == true) {
-            cat_command(false, &currentLen, lineLen, &capacity, &command, line);
-            first = false;
-        } 
-        else if (line[0] != '#') { // anything but comment
-            cat_command(true, &currentLen, lineLen, &capacity, &command, line);
+        if (lineLen == 0) {
+            prevBlank = true;
+            continue;
         }
+
+        if (line[0] == '#') {
+            continue;
+        }
+
+        // blank line
+        if (prevBlank) {
+            cat_command(true, &currentLen, lineLen, &capacity, &command, line);
+        } 
+        else { 
+            cat_command(false, &currentLen, lineLen, &capacity, &command, line);
+        }
+        prevBlank = false;
     }
-    printf("%s", command);
     system(command);
 
     fclose(fptr);
