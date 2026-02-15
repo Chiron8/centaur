@@ -134,15 +134,17 @@ int install(char package[]) {
 }
 
 int uninstall(char package[]) {
-    char path[150] = "/etc/centaur/packages/uninstall/";
-    strcat(path, package);
+    char installPath[150] = "/etc/centaur/packages/installed/";
+    strcat(installPath, package);
 
-    if (access(path, F_OK) != 0) {
+    if (access(installPath, F_OK) != 0) {
         printf("%s %s %s\n", "Package", package, "not installed.");
         exit(1);
     } 
 
-    read_execute(path);
+    char uninstallPath[150] = "/etc/centaur/packages/uninstall/";
+    strcat(uninstallPath, package);
+    read_execute(uninstallPath);
 
     char command[500] = "sudo rm -f";
     strcat(command, " /etc/centaur/packages/installed/");
