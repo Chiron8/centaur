@@ -8,33 +8,7 @@ sudo tar -xf writedoc.tar.gz
 
 cd writedoc-2.3-p1
 
-echo "Installing writedoc to /usr/local/bin..."
-
-sudo install -Dm755 writedoc /usr/local/bin/writedoc
-
-echo "Installing man page to /usr/local/share/man/man1..."
-
-sudo install -Dm644 writedoc.1 /usr/local/share/man/man1/writedoc.1
-
-#echo "Updating man database..."
-
-#mandb || true  # Uncomment this if man page can't be found
-
-echo "Installing configs"
-
-sudo mkdir /usr/local/share/writedoc
-
-sudo cp directory.txt /usr/share/writedoc/directory.txt
-
-sudo chmod 644 /usr/share/writedoc/directory.txt
-
-sudo cp editor.txt /usr/share/writedoc/editor.txt
-
-sudo chmod 644 /usr/share/writedoc/editor.txt
-
-sudo cp ft.txt /usr/share/writedoc/ft.txt
-
-sudo chmod 644 /usr/share/writedoc/ft.txt
+sudo ./install.sh
 
 echo "Finished installing! "
 
