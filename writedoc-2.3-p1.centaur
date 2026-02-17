@@ -16,7 +16,8 @@ echo "Tidying Files..."
 
 cd ../
 
-rm -rf ./writedoc
+rm writedoc.tar.gz
+rm -r writedoc-2.3-p1/
 
 echo "Adding uninstall scripts..."
 
