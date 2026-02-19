@@ -1,4 +1,2 @@
-all: centaur
-
-centaur: main.c
-	gcc main.c -o centaur
+add_executable(centaur main.c)
+install(TARGETS centaur DESTINATION bin)
