@@ -1,4 +1,5 @@
 cmake_minimum_required(VERSION 3.16)
+set(CMAKE_INSTALL_PREFIX "/" CACHE PATH "Install path prefix" FORCE)
 
 project(centaur C)
 include(GNUInstallDirs)
@@ -14,7 +15,7 @@ target_compile_options(centaur PRIVATE
     -Wpedantic
 )
 
-install(TARGETS centaur DESTINATION bin)
-install(DIRECTORY install_scripts/ DESTINATION ${CMAKE_INSTALL_SYSCONFDIR}/centaur/packages/scripts)
-install(DIRECTORY DESTINATION ${CMAKE_INSTALL_SYSCONFDIR}/centaur/packages/installed)
-install(DIRECTORY DESTINATION ${CMAKE_INSTALL_SYSCONFDIR}/centaur/packages/uninstall)
+install(TARGETS centaur DESTINATION /usr/bin/)
+install(DIRECTORY install_scripts/ DESTINATION /etc/centaur/packages/scripts)
+install(DIRECTORY DESTINATION /etc/centaur/packages/installed)
+install(DIRECTORY DESTINATION /etc/centaur/packages/uninstall)

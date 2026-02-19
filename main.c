@@ -5,6 +5,7 @@
 #include <string.h>
 #include <stdbool.h>
 #include <unistd.h> // to check for root permissions and checks if file exists
+
 // Aim
 // Program that can:
 // - Read install script DONE!
@@ -12,6 +13,8 @@
 // - Create file to show what was installed DONE!
 // 
 // I will just do an example with echo commands instead of actually installing something
+
+#define BASE_DIR "/etc/centaur/packages"
 
 int concat_realloc(size_t currentLen, size_t lineLen, size_t *capacity, char **command) {
     // check if command needs more mem
@@ -47,21 +50,6 @@ int cat_command(bool newCommand, size_t *currentLen, size_t lineLen, size_t *cap
     return 0;
 }
 
-int write_file(char path[], char package[]) {
-    FILE *fptr;
-    fptr = fopen(path, "w");
-
-    if (fptr == NULL) {
-        perror(path);
-        return 1;
-    }
-
-    fprintf(fptr, "%s", package);
-    fclose(fptr);
-
-    return 0;
-}
-
 int check_root() {
     if (geteuid() != 0) {
         printf("%s\n", "Please run as root.");
@@ -79,8 +67,8 @@ int read_execute(char file[]) {
         printf("%s%s%s\n", "Unable to locate install file ", file, ". Perhaps you spelt it wrong?");
         exit(1);
     }
-    char line[250];
-    size_t capacity = 256;
+    char line[256];
+    size_t capacity = 512;
     size_t currentLen = 0;
     char *command = malloc(capacity);
     command[0] = '\0';
@@ -110,50 +98,54 @@ int read_execute(char file[]) {
         prevBlank = false;
     }
     system(command);
-
+    free(command);
     fclose(fptr);
     return 0;
 }
 
 int install(char package[]) {
-    char path[150] = "/etc/centaur/packages/installed/";
-    strcat(path, package);
+    char installPath[150];
+    snprintf(installPath, sizeof(installPath), "%s/installed/%s", BASE_DIR, package);
 
-    if (access(path, F_OK) == 0) {
-        printf("%s\n", "Package already installed, installing again.");
+    if (access(installPath, F_OK) == 0) {
+        printf("%s\n", "Package already installed. Please uninstall first.");
+        exit(1);
     } 
 
-    read_execute(package);
+    char scriptPath[200];
+    snprintf(scriptPath, sizeof(scriptPath), "%s/scripts/%s", BASE_DIR, package);
+
+    read_execute(scriptPath);
 
     // write db file if file does not already exist
-    if (access(path, F_OK) != 0) {
-        write_file(path, package);
+    if (access(installPath, F_OK) != 0) {
+        FILE *fptr = fopen(installPath, "w");
+        if (fptr) {
+            fprintf(fptr, "Installed: %s\n", package);
+            fclose(fptr);
+        }
     } 
-
     return 0;
 }
 
 int uninstall(char package[]) {
-    char installPath[150] = "/etc/centaur/packages/installed/";
-    strcat(installPath, package);
+    char installPath[150];
+    snprintf(installPath, sizeof(installPath), "%s/installed/%s.centaur", BASE_DIR, package);
 
     if (access(installPath, F_OK) != 0) {
         printf("%s %s %s\n", "Package", package, "not installed.");
         exit(1);
     } 
 
-    char uninstallPath[150] = "/etc/centaur/packages/uninstall/";
-    strcat(uninstallPath, package);
+    char uninstallPath[150];
+    snprintf(uninstallPath, sizeof(uninstallPath), "%s/uninstall/%s.centaur", BASE_DIR, package);
+
     read_execute(uninstallPath);
 
-    char command[500] = "sudo rm -f";
-    strcat(command, " /etc/centaur/packages/installed/");
-    strcat(command, package);
-    strcat(command, " && sudo rm -f /etc/centaur/packages/uninstall/");
-    strcat(command, package);
+    if (remove(installPath) | remove(uninstallPath)) { // ensure both run
+        printf("%s\n", "Error removing files!");
+    }
 
-    system(command); 
-    printf("%s\n", command);
     return 0;
 }
 
@@ -170,10 +162,8 @@ int main(int argc, char *argv[]) {
     char instruction[50];
     strcpy(instruction, argv[1]);
 
-    // package var
-    char package[100];
-    strcpy(package, argv[2]);
-    strcat(package, ".centaur");
+    char package[150];
+    snprintf(package, sizeof(package), "%s.centaur", argv[2]);
 
     // why can't c do switch case for strings >:(
     if (strcmp(instruction, "install") == 0) {
