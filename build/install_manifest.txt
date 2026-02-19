@@ -1,3 +1,0 @@
-/usr/bin/centaur
-/etc/centaur/packages/scripts/writedoc-2.3-p1.centaur
-/etc/centaur/packages/scripts/example.centaur
