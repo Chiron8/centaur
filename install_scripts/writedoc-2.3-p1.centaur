@@ -1,12 +1,12 @@
 echo "Downloading..."
 
-wget -O writedoc.tar.gz https://github.com/Chiron8/writedoc/archive/refs/tags/v2.3-p1.tar.gz
+wget https://github.com/Chiron8/writedoc/archive/refs/tags/v2.3-p1.tar.gz -O /tmp/centaur/writedoc.tar.gz 
 
 echo "Installing..."
 
-sudo tar -xf writedoc.tar.gz
+sudo tar -xf /tmp/centaur/writedoc.tar.gz
 
-cd writedoc-2.3-p1
+cd /tmp/centaur/writedoc-2.3-p1
 
 sudo ./install.sh
 
