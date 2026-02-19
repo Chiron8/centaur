@@ -1,0 +1,1 @@
+/usr/bin/cc -Wl,--dependency-file=CMakeFiles/centaur.dir/link.d CMakeFiles/centaur.dir/main.c.o -o centaur

@@ -79,7 +79,7 @@ int read_execute(char file[]) {
         printf("%s%s%s\n", "Unable to locate install file ", file, ". Perhaps you spelt it wrong?");
         exit(1);
     }
-    char line[150];
+    char line[250];
     size_t capacity = 256;
     size_t currentLen = 0;
     char *command = malloc(capacity);
