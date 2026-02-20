@@ -26,9 +26,9 @@ echo "sudo rm -f /usr/local/bin/writedoc" |
 sudo tee -a /etc/centaur/packages/uninstall/writedoc-2.3-p1.centaur
 
 echo "sudo rm -f /usr/local/share/man/man1/writedoc.1" |
-sudo tee -a /etc/centaur/packages/uninstall/writedoc-2.1-p1.centaur
+sudo tee -a /etc/centaur/packages/uninstall/writedoc-2.3-p1.centaur
 
 echo "sudo rm -rf /usr/local/share/writedoc" |
-sudo tee -a /etc/centaur/packages/uninstall/writedoc-2.1-p1.centaur
+sudo tee -a /etc/centaur/packages/uninstall/writedoc-2.3-p1.centaur
 
 echo "Finished!"

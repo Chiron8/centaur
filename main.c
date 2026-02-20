@@ -5,6 +5,7 @@
 #include <string.h>
 #include <stdbool.h>
 #include <unistd.h> // to check for root permissions and checks if file exists
+#include <dirent.h>
 
 // Aim
 // Program that can:
@@ -150,18 +151,51 @@ int uninstall(char package[]) {
     return 0;
 }
 
+int list_iscentaur(char file[]) { // list() helper, checks if centaur file
+    size_t len = strlen(file);
+    if (len < 8) {
+        return 0;
+    }
+    return strcmp(file + len - 8, ".centaur") == 0; // checks if file ends with .centaur
+}
+
+int list() {
+    printf("%s\n\n", "All packages currently installed are:");
+    // gracefully stolen from a tutorialspoint article :)
+    DIR *dr;
+    struct dirent *en;
+    dr = opendir("/etc/centaur/packages/installed/");
+    while ((en = readdir(dr)) != NULL) {
+        /* weird thing to exclude last 8 chars (removes .centaur)
+        also check if file is not .. or .*/
+
+        if (list_iscentaur(en->d_name)) {
+            size_t len = strlen(en->d_name);
+            printf("%.*s\n", (int)(len-8), en->d_name);
+        } 
+    }
+    closedir(dr);
+    return 0;
+}
+
 int main(int argc, char *argv[]) {
-    check_root();
-    // check if arg was passed
+    // instruct var
+    char instruction[50];
+    strcpy(instruction, argv[1]);
+
+    // list doesn't need package name so call before other checks
+    if (strcmp(instruction, "list") == 0) {
+        list();
+        return 0;
+    }
+
     if (argc != 3) {
         printf("%s\n", "ERROR: enter both command and package name");
         printf("%s\n", "USAGE: centaur [COMMAND] [PACKAGE]");
         return 1;
     }
 
-    // instruct var
-    char instruction[50];
-    strcpy(instruction, argv[1]);
+    check_root();
 
     char package[150];
     snprintf(package, sizeof(package), "%s.centaur", argv[2]);
@@ -172,7 +206,7 @@ int main(int argc, char *argv[]) {
     }
     else if (strcmp(instruction, "uninstall") == 0) {
         uninstall(package);
-    }
+    } 
     else {
         printf("%s %s %s\n", "ERROR: instruction", instruction, "does not exist!");
         return 1;
