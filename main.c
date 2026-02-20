@@ -104,7 +104,7 @@ int read_execute(char file[]) {
 }
 
 int install(char package[]) {
-    char installPath[150];
+    char installPath[200];
     snprintf(installPath, sizeof(installPath), "%s/installed/%s", BASE_DIR, package);
 
     if (access(installPath, F_OK) == 0) {
@@ -129,16 +129,16 @@ int install(char package[]) {
 }
 
 int uninstall(char package[]) {
-    char installPath[150];
-    snprintf(installPath, sizeof(installPath), "%s/installed/%s.centaur", BASE_DIR, package);
+    char installPath[200];
+    snprintf(installPath, sizeof(installPath), "%s/installed/%s", BASE_DIR, package);
 
     if (access(installPath, F_OK) != 0) {
         printf("%s %s %s\n", "Package", package, "not installed.");
         exit(1);
     } 
 
-    char uninstallPath[150];
-    snprintf(uninstallPath, sizeof(uninstallPath), "%s/uninstall/%s.centaur", BASE_DIR, package);
+    char uninstallPath[200];
+    snprintf(uninstallPath, sizeof(uninstallPath), "%s/uninstall/%s", BASE_DIR, package);
 
     read_execute(uninstallPath);
 
