@@ -18,7 +18,7 @@
 
 int concat_realloc(size_t currentLen, size_t lineLen, size_t *capacity, char **command) {
     // check if command needs more mem
-    if (currentLen + lineLen + 8 > *capacity) {
+    while (currentLen + lineLen + 8 > *capacity) {
         size_t newCapacity = *capacity * 2;
         char *temp = realloc(*command, newCapacity);
         if (temp == NULL) { // out of memory
@@ -97,6 +97,7 @@ int read_execute(char file[]) {
         }
         prevBlank = false;
     }
+    fflush( stdout );
     system(command);
     free(command);
     fclose(fptr);
