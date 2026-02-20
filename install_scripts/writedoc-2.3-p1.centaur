@@ -4,9 +4,9 @@ wget https://github.com/Chiron8/writedoc/archive/refs/tags/v2.3-p1.tar.gz -O /tm
 
 echo "Installing..."
 
-sudo tar -xf /tmp/centaur/writedoc.tar.gz
+sudo tar -xf /tmp/centaur/writedoc.tar.gz -C /tmp/centaur
 
-cd /tmp/centaur/writedoc-2.3-p1
+cd /tmp/centaur/writedoc-2.3-p1/
 
 sudo ./install.sh
 
@@ -17,6 +17,7 @@ echo "Tidying Files..."
 cd ../
 
 rm writedoc.tar.gz
+
 rm -r writedoc-2.3-p1/
 
 echo "Adding uninstall scripts..."
