@@ -59,12 +59,12 @@ int check_root() {
     return 0;
 }
 
-int read_execute(char file[]) {
+int read_execute(char file[], bool force) {
 
     // load file
     FILE *fptr = fopen(file, "r");
 
-    if (fptr == NULL) {
+    if (fptr == NULL && force != true) {
         printf("%s%s%s\n", "Unable to locate install file ", file, ". Perhaps you spelt it wrong?");
         exit(1);
     }
@@ -98,10 +98,36 @@ int read_execute(char file[]) {
         }
         prevBlank = false;
     }
-    fflush( stdout );
+    if (system(command) > 0) {
+        return 1;
+    }
     system(command);
     free(command);
     fclose(fptr);
+    return 0;
+}
+
+int uninstall(char package[], bool force) {
+    char installPath[200];
+    snprintf(installPath, sizeof(installPath), "%s/installed/%s", BASE_DIR, package);
+
+    if (access(installPath, F_OK) != 0) {
+        printf("%s %s %s\n", "Package", package, "not installed.");
+        exit(1);
+    } 
+
+    char uninstallPath[200];
+    snprintf(uninstallPath, sizeof(uninstallPath), "%s/uninstall/%s", BASE_DIR, package);
+
+    read_execute(uninstallPath, force);
+
+    if (remove(installPath) | remove(uninstallPath)) { // ensure both run
+        if (force != true) {
+            printf("%s\n", "Error removing files!");
+            exit(1);
+        }
+    }
+
     return 0;
 }
 
@@ -117,7 +143,10 @@ int install(char package[]) {
     char scriptPath[200];
     snprintf(scriptPath, sizeof(scriptPath), "%s/scripts/%s", BASE_DIR, package);
 
-    read_execute(scriptPath);
+    if (read_execute(scriptPath, false) == 1) {
+        printf("%s %s%s\n", "ERROR: could not install package ", package, ", trying clean-up...");
+        uninstall(package, true);
+    }
 
     // write db file if file does not already exist
     if (access(installPath, F_OK) != 0) {
@@ -127,27 +156,6 @@ int install(char package[]) {
             fclose(fptr);
         }
     } 
-    return 0;
-}
-
-int uninstall(char package[]) {
-    char installPath[200];
-    snprintf(installPath, sizeof(installPath), "%s/installed/%s", BASE_DIR, package);
-
-    if (access(installPath, F_OK) != 0) {
-        printf("%s %s %s\n", "Package", package, "not installed.");
-        exit(1);
-    } 
-
-    char uninstallPath[200];
-    snprintf(uninstallPath, sizeof(uninstallPath), "%s/uninstall/%s", BASE_DIR, package);
-
-    read_execute(uninstallPath);
-
-    if (remove(installPath) | remove(uninstallPath)) { // ensure both run
-        printf("%s\n", "Error removing files!");
-    }
-
     return 0;
 }
 
@@ -189,7 +197,7 @@ int main(int argc, char *argv[]) {
         return 0;
     }
 
-    if (argc != 3) {
+    if (argc < 3) {
         printf("%s\n", "ERROR: enter both command and package name");
         printf("%s\n", "USAGE: centaur [COMMAND] [PACKAGE]");
         return 1;
@@ -205,7 +213,7 @@ int main(int argc, char *argv[]) {
         install(package);
     }
     else if (strcmp(instruction, "uninstall") == 0) {
-        uninstall(package);
+        uninstall(package, (argc == 4 && strcmp(argv[3], "force") == 0)); // check if force
     } 
     else {
         printf("%s %s %s\n", "ERROR: instruction", instruction, "does not exist!");
