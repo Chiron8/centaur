@@ -1,4 +1,4 @@
-//
+// probably GNU GPL v3
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -7,7 +7,15 @@
 #include <unistd.h> // to check for root permissions and checks if file exists
 #include <dirent.h>
 
-#define BASE_DIR "/etc/centaur/packages"
+// Aim
+// Program that can:
+// - Read install script DONE!
+// - Run commands in the install script DONE!
+// - Create file to show what was installed DONE!
+// 
+// I will just do an example with echo commands instead of actually installing something
+
+#define BASE_DIR "/etc/centaur/packages/"
 
 int concat_realloc(size_t currentLen, size_t lineLen, size_t *capacity, char **command) {
     // check if command needs more mem
@@ -181,13 +189,7 @@ int list() {
 
 int license() {
     // output gpl license
-    FILE *fptr = fopen("/etc/centaur/doc/small_license.txt", "r");
-    char line[256];
-    while (fgets(line, sizeof(line), fptr)) {
-        printf(line);
-    }
-    fclose(fptr);
-    return 0;
+    
 }
 
 int main(int argc, char *argv[]) {
