@@ -17,6 +17,7 @@ target_compile_options(centaur PRIVATE
 
 install(TARGETS centaur DESTINATION /usr/bin/)
 install(DIRECTORY install_scripts/ DESTINATION /etc/centaur/packages/scripts)
+install(DIRECTORY doc/ DESTINATION /etc/centaur/doc)
 install(DIRECTORY DESTINATION /etc/centaur/packages/installed)
 install(DIRECTORY DESTINATION /etc/centaur/packages/uninstall)
 install(DIRECTORY DESTINATION /tmp/centaur)

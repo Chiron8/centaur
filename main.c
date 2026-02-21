@@ -101,7 +101,7 @@ int read_execute(char file[], bool force) {
     if (system(command) > 0) {
         return 1;
     }
-    system(command);
+
     free(command);
     fclose(fptr);
     return 0;
@@ -187,6 +187,17 @@ int list() {
     return 0;
 }
 
+int license() {
+    // output gpl license
+    FILE *fptr = fopen("/etc/centaur/doc/small_license.txt", "r");
+    char line[256];
+    while (fgets(line, sizeof(line), fptr)) {
+        printf(line);
+    }
+    fclose(fptr);
+    return 0;
+}
+
 int main(int argc, char *argv[]) {
     // instruct var
     char instruction[50];
@@ -195,6 +206,10 @@ int main(int argc, char *argv[]) {
     // list doesn't need package name so call before other checks
     if (strcmp(instruction, "list") == 0) {
         list();
+        return 0;
+    }
+    else if (strcmp(instruction, "license") == 0) {
+        license();
         return 0;
     }
 
