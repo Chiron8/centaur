@@ -101,7 +101,7 @@ int read_execute(char file[], bool force) {
     if (system(command) > 0) {
         return 1;
     }
-
+    system(command);
     free(command);
     fclose(fptr);
     return 0;
