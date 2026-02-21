@@ -128,6 +128,7 @@ int uninstall(char package[], bool force) {
         }
     }
 
+    printf("%s %s\n", package, "uninstalled!");
     return 0;
 }
 

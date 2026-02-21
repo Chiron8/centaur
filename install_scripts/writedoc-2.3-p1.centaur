@@ -4,11 +4,11 @@ wget https://github.com/Chiron8/writedoc/archive/refs/tags/v2.3-p1.tar.gz -O /tm
 
 echo "Installing..."
 
-sudo tar -xf /tmp/centaur/writedoc.tar.gz -C /tmp/centaur
+tar -xf /tmp/centaur/writedoc.tar.gz -C /tmp/centaur
 
 cd /tmp/centaur/writedoc-2.3-p1/
 
-sudo ./install.sh
+./install.sh
 
 echo "Finished installing! "
 
@@ -22,13 +22,13 @@ rm -r writedoc-2.3-p1/
 
 echo "Adding uninstall scripts..."
 
-echo "sudo rm -f /usr/local/bin/writedoc" |
-sudo tee -a /etc/centaur/packages/uninstall/writedoc-2.3-p1.centaur
+echo -e "rm /usr/local/bin/writedoc \n" |
+tee -a /etc/centaur/packages/uninstall/writedoc-2.3-p1.centaur
 
-echo "sudo rm -f /usr/local/share/man/man1/writedoc.1" |
-sudo tee -a /etc/centaur/packages/uninstall/writedoc-2.3-p1.centaur
+echo -e "rm /usr/local/share/man/man1/writedoc.1 \n" |
+tee -a /etc/centaur/packages/uninstall/writedoc-2.3-p1.centaur
 
-echo "sudo rm -rf /usr/local/share/writedoc" |
-sudo tee -a /etc/centaur/packages/uninstall/writedoc-2.3-p1.centaur
+echo -e "rm -r /usr/local/share/writedoc \n" |
+tee -a /etc/centaur/packages/uninstall/writedoc-2.3-p1.centaur
 
 echo "Finished!"
