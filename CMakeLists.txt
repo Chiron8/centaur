@@ -7,7 +7,7 @@ include(GNUInstallDirs)
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 
-add_executable(centaur main.c)
+add_executable(centaur src/main.c)
 
 target_compile_options(centaur PRIVATE
     -Wall
@@ -16,8 +16,8 @@ target_compile_options(centaur PRIVATE
 )
 
 install(TARGETS centaur DESTINATION /usr/bin/)
-install(DIRECTORY install_scripts/ DESTINATION /etc/centaur/packages/scripts)
+install(DIRECTORY packages/ DESTINATION /etc/centaur/packages/scripts)
 install(DIRECTORY doc/ DESTINATION /etc/centaur/doc)
-install(DIRECTORY DESTINATION /etc/centaur/packages/installed)
+install(DIRECTORY DESTINATION /etc/centaur/db/installed)
 install(DIRECTORY DESTINATION /etc/centaur/packages/uninstall)
 install(DIRECTORY DESTINATION /tmp/centaur)
