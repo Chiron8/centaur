@@ -7,7 +7,13 @@ include(GNUInstallDirs)
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 
-add_executable(centaur src/main.c)
+add_executable(centaur 
+    src/main.c
+    src/install.c
+    src/license.c
+    src/list.c
+    src/parse.c
+    src/uninstall.c)
 
 target_compile_options(centaur PRIVATE
     -Wall
