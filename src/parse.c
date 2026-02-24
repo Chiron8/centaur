@@ -44,15 +44,15 @@ int read_execute(char file[], bool force) {
     FILE *fptr = fopen(file, "r");
 
     if (fptr == NULL && force != true) {
-        printf("%s%s%s\n", "Unable to locate install file ", file, ". Perhaps you spelt it wrong?");
+        printf("%s %s %s\n", "Unable to locate install file", file,". Perhaps you spelt it wrong?");
         exit(1);
     }
+
     char line[256];
     size_t capacity = 512;
     size_t currentLen = 0;
     char *command = malloc(capacity);
     command[0] = '\0';
-
     bool prevBlank = false;
 
     while (fgets(line, sizeof(line), fptr)) { // read lines one at a time
@@ -68,19 +68,13 @@ int read_execute(char file[], bool force) {
             continue;
         }
 
-        // blank line
-        if (prevBlank) {
-            cat_command(true, &currentLen, lineLen, &capacity, &command, line);
-        } 
-        else { 
-            cat_command(false, &currentLen, lineLen, &capacity, &command, line);
-        }
+        cat_command(prevBlank, &currentLen, lineLen, &capacity, &command, line);
         prevBlank = false;
     }
+
     if (system(command) > 0) {
         return 1;
     }
-
     free(command);
     fclose(fptr);
     return 0;

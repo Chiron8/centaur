@@ -20,7 +20,6 @@ int list() {
     while ((en = readdir(dr)) != NULL) {
         /* weird thing to exclude last 7 chars (removes .centaur)
         also check if file is not .. or .*/
-
         if (list_iscentaur(en->d_name)) {
             size_t len = strlen(en->d_name);
             printf("%.*s\n", (int)(len-8), en->d_name);
