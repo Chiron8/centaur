@@ -13,7 +13,8 @@ add_executable(centaur
     src/license.c
     src/list.c
     src/parse.c
-    src/uninstall.c)
+    src/uninstall.c
+    src/dependencies.c)
 
 target_compile_options(centaur PRIVATE
     -Wall

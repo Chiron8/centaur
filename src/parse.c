@@ -55,6 +55,10 @@ int read_execute(char file[], bool force) {
 
     bool prevBlank = false;
 
+    while (fgets(line, sizeof(line), fptr) && line[0] != '=') {
+        continue;
+    }
+
     while (fgets(line, sizeof(line), fptr)) { // read lines one at a time
         line[strcspn(line, "\n")] = '\0'; // get rid of new line char
         size_t lineLen = strlen(line);
@@ -85,4 +89,3 @@ int read_execute(char file[], bool force) {
     fclose(fptr);
     return 0;
 }
-

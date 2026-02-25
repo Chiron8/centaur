@@ -10,6 +10,7 @@
 #include "parse.h"
 #include "license.h"
 #include "list.h"
+#include "dependencies.h"
 
 int check_root() {
     if (geteuid() != 0) {
@@ -47,7 +48,19 @@ int main(int argc, char *argv[]) {
 
     // why can't c do switch case for strings >:(
     if (strcmp(instruction, "install") == 0) {
-        install(package);
+        char **deps = NULL;
+        size_t total_deps = 0;
+
+        deps = getDependencies(package, deps, &total_deps);
+
+        printf("%s\n", "Installing packages:");
+        for (size_t i = 0; i < total_deps; i++) {
+            printf("  - %s\n", deps[i]);
+        }
+
+        for (size_t i = 0; i < total_deps; i++) {
+            install(package);
+        }
     }
     else if (strcmp(instruction, "uninstall") == 0) {
         uninstall(package, (argc == 4 && strcmp(argv[3], "force") == 0)); // check if force
