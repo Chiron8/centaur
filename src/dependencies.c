@@ -3,6 +3,18 @@
 #include <stdlib.h>
 #include <string.h>
 
+void reverseDependencies(char **deps, size_t size) {
+    if (deps == NULL || size == 0) {
+        return;
+    }
+
+    for (size_t i = 0; i < size / 2; i++) {
+        char *temp = deps[i];
+        deps[i] = deps[size-1-i];
+        deps[size-1-i] = temp;
+    }
+}
+
 bool alreadyAdded(char *target, char **deps, size_t deps_size) {
     for (size_t i = 0; i < deps_size; i++) {
         if (strcmp(deps[i], target) == 0) {
@@ -14,8 +26,8 @@ bool alreadyAdded(char *target, char **deps, size_t deps_size) {
 
 char **getDependencies(const char *file, char **deps, size_t *deps_size) {
     // load file
-    char path[200] = "/etc/centaur/packages/scripts/";
-    snprintf(path, sizeof(path), "%s", file);
+    char path[200];
+    snprintf(path, sizeof(path), "/etc/centaur/packages/scripts/%s", file);
     FILE *fptr = fopen(path, "r");
 
     if (fptr == NULL) {

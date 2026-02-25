@@ -52,6 +52,7 @@ int main(int argc, char *argv[]) {
         size_t total_deps = 0;
 
         deps = getDependencies(package, deps, &total_deps);
+        reverseDependencies(deps, total_deps);
 
         printf("%s\n", "Installing packages:");
         for (size_t i = 0; i < total_deps; i++) {
