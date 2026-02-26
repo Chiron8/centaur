@@ -1,3 +1,4 @@
+=== ADD DEPENDENCIES ABOVE THIS LINE ===
 echo "I am doing a thing"
 
 # don't do this
