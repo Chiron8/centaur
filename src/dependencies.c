@@ -57,7 +57,7 @@ Dependency *getDependencies(const char *file, const char *parent, Dependency *de
     snprintf(file_dep, sizeof(file_dep), "%s", file);
 
     (*deps_size)++;
-    Dependency *tmp_deps = realloc(deps, (*deps_size) * sizeof(char *));
+    Dependency *tmp_deps = realloc(deps, (*deps_size) * sizeof(Dependency));
     if (tmp_deps == NULL) {
         perror("Failed to realloc memory");
         exit(1);
