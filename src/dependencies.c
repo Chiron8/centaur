@@ -3,28 +3,44 @@
 #include <stdlib.h>
 #include <string.h>
 
-void reverseDependencies(char **deps, size_t size) {
+typedef struct {
+    char *dep;
+    char *parent;
+} Dependency;
+
+void reverseDependencies(Dependency *deps, size_t size) {
     if (deps == NULL || size == 0) {
         return;
     }
 
     for (size_t i = 0; i < size / 2; i++) {
-        char *temp = deps[i];
-        deps[i] = deps[size-1-i];
-        deps[size-1-i] = temp;
+        char *temp_dep = deps[i].dep;
+        char *temp_parent = deps[i].parent;
+        deps[i].dep = deps[size-1-i].dep;
+        deps[i].parent = deps[size-1-i].parent;
+        deps[size-1-i].dep = temp_dep;
+        deps[size-1-i].parent = temp_parent;
     }
 }
 
-bool alreadyAdded(char *target, char **deps, size_t deps_size) {
+bool alreadyAdded(char *target, Dependency *deps, size_t deps_size) {
     for (size_t i = 0; i < deps_size; i++) {
-        if (strcmp(deps[i], target) == 0) {
+        if (strcmp(deps[i].dep, target) == 0) {
             return true;
         }
     }
     return false;
 }
 
-char **getDependencies(const char *file, char **deps, size_t *deps_size) {
+void freeDependencies(Dependency *deps, size_t size) {
+    for (size_t i = 0; i < size; i++) {
+        free(deps[i].dep);
+        free(deps[i].parent);
+    }
+    free(deps);
+}
+
+Dependency *getDependencies(const char *file, const char *parent, Dependency *deps, size_t *deps_size) {
     // load file
     char path[200];
     snprintf(path, sizeof(path), "/etc/centaur/packages/scripts/%s", file);
@@ -41,13 +57,14 @@ char **getDependencies(const char *file, char **deps, size_t *deps_size) {
     snprintf(file_dep, sizeof(file_dep), "%s", file);
 
     (*deps_size)++;
-    char **tmp_deps = realloc(deps, (*deps_size) * sizeof(char *));
+    Dependency *tmp_deps = realloc(deps, (*deps_size) * sizeof(char *));
     if (tmp_deps == NULL) {
         perror("Failed to realloc memory");
         exit(1);
     }
     deps = tmp_deps;
-    deps[*deps_size - 1] = strdup(file_dep);
+    deps[*deps_size - 1].dep = strdup(file);
+    deps[*deps_size -1].parent = parent ? strdup(parent) : NULL;
 
 
     while(fgets(line, sizeof(line), fptr) && line[0] != '=') {
@@ -56,7 +73,7 @@ char **getDependencies(const char *file, char **deps, size_t *deps_size) {
         }
         line[strcspn(line, "\n")] = '\0';
         if (!alreadyAdded(line, deps, *deps_size)) {
-            deps = getDependencies(line, deps, deps_size);
+            deps = getDependencies(line, file, deps, deps_size);
         }
         else {
             printf("Skipping circular dep");

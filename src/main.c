@@ -48,20 +48,21 @@ int main(int argc, char *argv[]) {
 
     // why can't c do switch case for strings >:(
     if (strcmp(instruction, "install") == 0) {
-        char **deps = NULL;
+        Dependency *deps = NULL;
         size_t total_deps = 0;
 
-        deps = getDependencies(package, deps, &total_deps);
+        deps = getDependencies(package, NULL, deps, &total_deps);
         reverseDependencies(deps, total_deps);
 
         printf("%s\n", "Installing packages:");
         for (size_t i = 0; i < total_deps; i++) {
-            printf("  - %s\n", deps[i]);
+            printf("  - %s\n", deps[i].dep);
         }
 
         for (size_t i = 0; i < total_deps; i++) {
-            install(package);
+            install(deps[i].dep, deps[i].parent);
         }
+        freeDependencies(deps, total_deps);
     }
     else if (strcmp(instruction, "uninstall") == 0) {
         uninstall(package, (argc == 4 && strcmp(argv[3], "force") == 0)); // check if force

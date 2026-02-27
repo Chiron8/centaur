@@ -1,1 +1,1 @@
-int install(char package[]);
+int install(char package[], char parent[]);

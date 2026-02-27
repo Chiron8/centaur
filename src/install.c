@@ -6,7 +6,7 @@
 
 #define BASE_DIR "/etc/centaur/packages/"
 
-int install(char package[]) {
+int install(char package[], char parent[]) {
     char installPath[200];
     snprintf(installPath, sizeof(installPath), "%s/installed/%s", BASE_DIR, package);
 
@@ -27,7 +27,7 @@ int install(char package[]) {
     if (access(installPath, F_OK) != 0) {
         FILE *fptr = fopen(installPath, "w");
         if (fptr) {
-            fprintf(fptr, "Installed: %s\n", package);
+            fprintf(fptr, "%s\n", parent);
             fclose(fptr);
         }
     } 
