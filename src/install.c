@@ -11,8 +11,8 @@ int install(char package[], char parent[]) {
     snprintf(installPath, sizeof(installPath), "%s/installed/%s", BASE_DIR, package);
 
     if (access(installPath, F_OK) == 0) {
-        printf("%s\n", "Package already installed. Please uninstall first.");
-        exit(1);
+        printf("%s\n", "Package already installed");
+        return 1;
     } 
 
     char scriptPath[200];
