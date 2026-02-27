@@ -12,6 +12,14 @@
 #include "list.h"
 #include "dependencies.h"
 
+void print_usage() {
+    printf("%s\n%s\n\n%s\n%s\n",
+           "ERROR: Please enter command and related arguments.",
+           "USAGE: centaur [COMMAND] [ARGUMENTS]",
+           "see the wiki for more information:",
+           "https://github.com/Chiron8/centaur/wiki");
+}
+
 int check_root() {
     if (geteuid() != 0) {
         printf("%s\n", "Please run as root.");
@@ -21,6 +29,12 @@ int check_root() {
 }
 
 int main(int argc, char *argv[]) {
+
+    if (argc == 1) {
+        print_usage();
+        return 1;
+    }
+
     // instruct var
     char instruction[50];
     strcpy(instruction, argv[1]);
@@ -36,8 +50,7 @@ int main(int argc, char *argv[]) {
     }
 
     if (argc < 3) {
-        printf("%s\n", "ERROR: enter both command and package name");
-        printf("%s\n", "USAGE: centaur [COMMAND] [PACKAGE]");
+        print_usage();
         return 1;
     }
 
