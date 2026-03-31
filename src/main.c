@@ -57,8 +57,8 @@ int main(int argc, char *argv[]) {
     check_root();
 
     char package[150];
-    snprintf(package, sizeof(package), "%s.centaur", argv[2]);
-
+    //snprintf(package, sizeof(package), "%s.centaur", argv[2]);
+    snprintf(package, sizeof(package), "%s", argv[2]);
     // why can't c do switch case for strings >:(
     if (strcmp(instruction, "install") == 0) {
         Dependency *deps = NULL;
