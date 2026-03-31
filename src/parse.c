@@ -23,13 +23,14 @@ int get_latest(const char *path, char *latest, size_t size) {
     // get last entry
     const char *name = namelist[n - 1] -> d_name;
 
-    strncpy(latest, name, size-1);
+    snprintf(latest, size, "%s", name);
     latest[size-1] = '\0';
 
     for (int i = 0; i < n; i++) {
         free(namelist[i]);
     }
     free(namelist);
+
     return 0;
 }
 
@@ -106,6 +107,8 @@ int read_execute(char file[], bool force) {
     }
 
     if (system(command) > 0) {
+        free(command);
+        fclose(fptr);
         return 1;
     }
     free(command);

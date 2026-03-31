@@ -4,16 +4,21 @@
 #include <unistd.h>
 #include <stdlib.h>
 
-#define BASE_DIR "/etc/centaur/packages/"
+#define BASE_DIR "/etc/centaur/packages"
 
 
 int install(char package[], char parent[]) {
     char scriptDirectory[200];
-    snprintf(scriptDirectory, sizeof(scriptDirectory), "%s/scripts/%s", BASE_DIR, package);
+    snprintf(scriptDirectory, sizeof(scriptDirectory), "%s/scripts/%s/", BASE_DIR, package);
 
     char scriptPath[300];
     char latest[100];
-    get_latest(scriptPath, latest, sizeof(latest));
+    int code = get_latest(scriptDirectory, latest, sizeof(latest));
+
+    if (code == -1) {
+        printf("%s\n", "Something went wrong :O");
+        exit(1);
+    }
 
     snprintf(scriptPath, sizeof(scriptPath), "%s/%s", scriptDirectory, latest);
 
