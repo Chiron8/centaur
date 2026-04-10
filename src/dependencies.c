@@ -1,3 +1,5 @@
+#include "parse.h"
+#include "uninstall.h"
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -42,8 +44,24 @@ void freeDependencies(Dependency *deps, size_t size) {
 
 Dependency *getDependencies(const char *file, const char *parent, Dependency *deps, size_t *deps_size) {
     // load file
-    char path[200];
-    snprintf(path, sizeof(path), "/etc/centaur/packages/scripts/%s", file);
+    char packagePath[200];
+    char latest[150];
+
+    snprintf(packagePath, sizeof(packagePath), "/etc/centaur/packages/scripts/%s", file);
+
+    int code = get_latest(packagePath, latest, sizeof(latest));
+
+    if (code == -1) {
+        printf("%s\n", packagePath);
+        printf("%s\n", "Something went wrong :O");
+        exit(1);
+    }
+
+    char path[350];
+    snprintf(path, sizeof(path), "%s/%s", packagePath, latest);
+
+    printf("%s\n", path);
+
     FILE *fptr = fopen(path, "r");
 
     if (fptr == NULL) {

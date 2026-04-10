@@ -29,7 +29,6 @@ int check_root() {
 }
 
 int main(int argc, char *argv[]) {
-
     if (argc == 1) {
         print_usage();
         return 1;

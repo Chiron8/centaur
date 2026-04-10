@@ -9,7 +9,7 @@
 
 int install(char package[], char parent[]) {
     char scriptDirectory[200];
-    snprintf(scriptDirectory, sizeof(scriptDirectory), "%s/scripts/%s/", BASE_DIR, package);
+    snprintf(scriptDirectory, sizeof(scriptDirectory), "%s/scripts/%s", BASE_DIR, package);
 
     char scriptPath[300];
     char latest[100];
@@ -25,7 +25,7 @@ int install(char package[], char parent[]) {
     printf("%s", scriptPath);
 
     char installPath[200];
-    snprintf(installPath, sizeof(installPath), "%s/installed/%s", BASE_DIR, package);
+    snprintf(installPath, sizeof(installPath), "%s/installed/%s/%s", BASE_DIR, package, latest);
 
     if (access(installPath, F_OK) == 0) {
         printf("%s\n", "Package already installed");
