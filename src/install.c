@@ -22,14 +22,13 @@ int install(char package[], char parent[]) {
 
     snprintf(scriptPath, sizeof(scriptPath), "%s/%s", scriptDirectory, latest);
 
-    printf("%s", scriptPath);
 
     char installPath[200];
-    snprintf(installPath, sizeof(installPath), "%s/installed/%s/%s", BASE_DIR, package, latest);
+    snprintf(installPath, sizeof(installPath), "%s/installed/%s", BASE_DIR, latest);
 
     if (access(installPath, F_OK) == 0) {
         printf("%s\n", "Package already installed");
-        return 1;
+        exit(1);
     } 
 
     if (read_execute(scriptPath, false) == 1) {
@@ -37,13 +36,11 @@ int install(char package[], char parent[]) {
         uninstall(package, true);
     }
 
-    // write db file if file does not already exist
-    if (access(installPath, F_OK) != 0) {
-        FILE *fptr = fopen(installPath, "w");
-        if (fptr) {
-            fprintf(fptr, "%s\n", parent);
-            fclose(fptr);
-        }
-    } 
+    FILE *fptr = fopen(installPath, "w");
+    if (fptr) {
+        fprintf(fptr, "%s\n", parent);
+        fclose(fptr);
+    }
+     
     return 0;
 }
