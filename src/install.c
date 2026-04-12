@@ -16,6 +16,7 @@ int install(char package[], char parent[]) {
     int code = get_latest(scriptDirectory, latest, sizeof(latest));
 
     if (code == -1) {
+        printf("%s\n", scriptDirectory);
         printf("%s\n", "Something went wrong :O");
         exit(1);
     }

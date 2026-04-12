@@ -13,6 +13,6 @@ echo $HI
 
 echo "did it work?"
 
-echo 'echo "This is going into add some random stuff in the uninstall file!"' | sudo tee /etc/centaur/packages/uninstall/example.centaur
+echo 'echo "This is going into add some random stuff in the uninstall file!"' | sudo tee /etc/centaur/packages/uninstall/example-0.1.centaur
 
 echo "finished!"

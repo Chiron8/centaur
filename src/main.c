@@ -4,6 +4,7 @@
 #include <string.h>
 #include <unistd.h> // to check for root permissions and checks if file exists
 #include <stdlib.h>
+#include <stdbool.h>
 
 #include "install.h"
 #include "uninstall.h"
@@ -77,7 +78,8 @@ int main(int argc, char *argv[]) {
         freeDependencies(deps, total_deps);
     }
     else if (strcmp(instruction, "uninstall") == 0) {
-        uninstall(package, (argc == 4 && strcmp(argv[3], "force") == 0)); // check if force
+        int force = (argc == 4 && strcmp(argv[3], "force") == 0);
+        uninstall(package, force);
     } 
     else {
         printf("%s %s %s\n", "ERROR: instruction", instruction, "does not exist!");
