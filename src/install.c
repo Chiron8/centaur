@@ -2,6 +2,7 @@
 #include "uninstall.h"
 #include <stdio.h>
 #include <unistd.h>
+#include <string.h>
 #include <stdlib.h>
 
 #define BASE_DIR "/etc/centaur/packages"
@@ -38,7 +39,7 @@ int install(char package[], char parent[]) {
     }
 
     FILE *fptr = fopen(installPath, "w");
-    if (fptr) {
+    if (fptr && parent != NULL) {
         fprintf(fptr, "%s\n", parent);
         fclose(fptr);
     }

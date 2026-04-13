@@ -21,10 +21,7 @@ void dep_check(char file[], char package[]) {
     FILE *fptr = fopen(file, "r");
     char line[256];
 
-    if (strcmp(fgets(line, 256, fptr), "(null)")) {
-        return;
-    }
-    else {
+    if (fgets(line, 256, fptr) != NULL) {
         fclose(fptr);
         FILE *fptr = fopen(file, "r");
         char line[256];
@@ -38,7 +35,8 @@ void dep_check(char file[], char package[]) {
     fclose(fptr);
 }
 
-int uninstall(char package[], bool force) {
+int uninstall(char package[], int force) {
+
     char installPath[300];
     char noversion[150];
     snprintf(noversion, sizeof(noversion), "%s", remove_version(package));
@@ -50,7 +48,7 @@ int uninstall(char package[], bool force) {
         exit(1);
     } 
 
-    if (force != true) {
+    if (force != 1) {
         dep_check(installPath, package);
     }
 
@@ -60,7 +58,7 @@ int uninstall(char package[], bool force) {
     read_execute(uninstallPath, force);
 
     if (remove(installPath) | remove(uninstallPath)) { // ensure both run
-        if (force != true) {
+        if (force != 1) {
             printf("%s\n", "Error removing files!");
             exit(1);
         }
