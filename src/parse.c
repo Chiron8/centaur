@@ -106,6 +106,7 @@ int read_execute(char file[], bool force) {
         prevBlank = false;
     }
 
+    printf("%s\n", command);
     if (system(command) > 0) {
         free(command);
         fclose(fptr);

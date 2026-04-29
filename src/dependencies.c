@@ -84,7 +84,6 @@ Dependency *getDependencies(const char *file, const char *parent, Dependency *de
     deps[*deps_size - 1].dep = strdup(file);
     deps[*deps_size -1].parent = parent ? strdup(parent) : NULL;
 
-
     while(fgets(line, sizeof(line), fptr) && line[0] != '=') {
         if (line[0] == '#' || line[0] == '\n') {
             continue;

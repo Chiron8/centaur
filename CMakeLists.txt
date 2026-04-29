@@ -22,9 +22,12 @@ target_compile_options(centaur PRIVATE
     -Wpedantic
 )
 
-install(TARGETS centaur DESTINATION /usr/bin/)
-install(DIRECTORY packages/ DESTINATION /etc/centaur/packages/scripts)
-install(DIRECTORY doc/ DESTINATION /etc/centaur/doc)
-install(DIRECTORY DESTINATION /etc/centaur/packages/installed)
-install(DIRECTORY DESTINATION /etc/centaur/packages/uninstall)
-install(DIRECTORY DESTINATION /tmp/centaur)
+install(TARGETS centaur DESTINATION bin)
+install(DIRECTORY packages/ DESTINATION etc/centaur/packages/scripts)
+install(DIRECTORY doc/ DESTINATION etc/centaur/doc)
+
+install(CODE [[
+    file(MAKE_DIRECTORY /etc/centaur/packages/installed)
+    file(MAKE_DIRECTORY /etc/centaur/packages/uninstall)
+    file(MAKE_DIRECTORY /tmp/centaur)
+]])

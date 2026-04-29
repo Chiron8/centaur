@@ -61,10 +61,13 @@ int main(int argc, char *argv[]) {
     snprintf(package, sizeof(package), "%s", argv[2]);
     // why can't c do switch case for strings >:(
     if (strcmp(instruction, "install") == 0) {
+        // get all dependencies...
         Dependency *deps = NULL;
         size_t total_deps = 0;
 
+        //call main func in dependencies.c
         deps = getDependencies(package, NULL, deps, &total_deps);
+        //array needs to be reversed so parent directory is installed first
         reverseDependencies(deps, total_deps);
 
         printf("%s\n", "Installing packages:");
@@ -73,6 +76,7 @@ int main(int argc, char *argv[]) {
         }
 
         for (size_t i = 0; i < total_deps; i++) {
+            // check if package already exists
             install(deps[i].dep, deps[i].parent);
         }
         freeDependencies(deps, total_deps);

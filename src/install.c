@@ -30,7 +30,7 @@ int install(char package[], char parent[]) {
 
     if (access(installPath, F_OK) == 0) {
         printf("%s\n", "Package already installed");
-        exit(1);
+        return 1;
     } 
 
     if (read_execute(scriptPath, false) == 1) {
