@@ -7,6 +7,7 @@
 #include <dirent.h>
 
 int get_latest(const char *path, char *latest, size_t size) {
+    // use GNU version sort to find latest version
     struct dirent **namelist;
     int n;
 
@@ -55,6 +56,7 @@ int cat_command(bool newCommand, size_t *currentLen, size_t lineLen, size_t *cap
     }
 
     if (newCommand == true) {
+        // if blank line, new command
         strcat(*command, " && ");
         strcat(*command, line);
         *currentLen += lineLen+4;
@@ -86,6 +88,7 @@ int read_execute(char file[], bool force) {
     bool prevBlank = false;
 
     while (fgets(line, sizeof(line), fptr) && line[0] != '=') {
+        // skip dependency declaration
         continue;
     }
 
@@ -94,14 +97,17 @@ int read_execute(char file[], bool force) {
         size_t lineLen = strlen(line);
 
         if (lineLen == 0) {
+            // check if blank line
             prevBlank = true;
             continue;
         }
 
         if (line[0] == '#') {
+            // ignore comments
             continue;
         }
 
+        // add line to big command thing
         cat_command(prevBlank, &currentLen, lineLen, &capacity, &command, line);
         prevBlank = false;
     }

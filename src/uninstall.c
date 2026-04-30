@@ -7,8 +7,10 @@
 #define BASE_DIR "/etc/centaur/packages"
 
 char* remove_version(char package[]) {
+    // example-1.2.3 -> example
     static char new[100];
     int index = 0;
+    // removes everything past and including -
     while (package[index] != '-' && package[index] != '\0') {
         new[index] = package[index];
         index++;
@@ -18,6 +20,7 @@ char* remove_version(char package[]) {
 }
 
 void dep_check(char file[], char package[]) {
+    // install file contains parents
     FILE *fptr = fopen(file, "r");
     char line[256];
 
@@ -27,6 +30,7 @@ void dep_check(char file[], char package[]) {
         char line[256];
         printf("%s %s%s\n", "The following dependencies still rely on", package, ":");
         while (fgets(line, 256, fptr)) {
+            // print every dep
             printf(" - %s\n", line);
         }
         printf("%s\n", "Please uninstall these dependencies first.");
@@ -36,7 +40,6 @@ void dep_check(char file[], char package[]) {
 }
 
 int uninstall(char package[], int force) {
-
     char installPath[300];
     char noversion[150];
     snprintf(noversion, sizeof(noversion), "%s", remove_version(package));

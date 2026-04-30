@@ -14,6 +14,7 @@
 #include "dependencies.h"
 
 void print_usage() {
+    // error message
     printf("%s\n%s\n\n%s\n%s\n",
            "ERROR: Please enter command and related arguments.",
            "USAGE: centaur [COMMAND] [ARGUMENTS]",
@@ -22,6 +23,7 @@ void print_usage() {
 }
 
 int check_root() {
+    // checks if program has root permissions
     if (geteuid() != 0) {
         printf("%s\n", "Please run as root.");
         exit(1);
@@ -31,6 +33,7 @@ int check_root() {
 
 int main(int argc, char *argv[]) {
     if (argc == 1) {
+        // no command or package passed
         print_usage();
         return 1;
     }
@@ -39,7 +42,7 @@ int main(int argc, char *argv[]) {
     char instruction[50];
     strcpy(instruction, argv[1]);
 
-    // list doesn't need package name so call before other checks
+    // list or license doesn't need package name or root so call before other checks
     if (strcmp(instruction, "list") == 0) {
         list();
         return 0;
@@ -57,8 +60,8 @@ int main(int argc, char *argv[]) {
     check_root();
 
     char package[150];
-    //snprintf(package, sizeof(package), "%s.centaur", argv[2]);
     snprintf(package, sizeof(package), "%s", argv[2]);
+
     // why can't c do switch case for strings >:(
     if (strcmp(instruction, "install") == 0) {
         // get all dependencies...
@@ -82,6 +85,7 @@ int main(int argc, char *argv[]) {
         freeDependencies(deps, total_deps);
     }
     else if (strcmp(instruction, "uninstall") == 0) {
+        // force uninstall if force keyword is passed
         int force = (argc == 4 && strcmp(argv[3], "force") == 0);
         uninstall(package, force);
     } 

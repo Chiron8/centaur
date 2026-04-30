@@ -11,6 +11,7 @@ typedef struct {
 } Dependency;
 
 void reverseDependencies(Dependency *deps, size_t size) {
+    // dep graph needs to be reversed so deps are installed before parent
     if (deps == NULL || size == 0) {
         return;
     }
@@ -26,6 +27,7 @@ void reverseDependencies(Dependency *deps, size_t size) {
 }
 
 bool alreadyAdded(char *target, Dependency *deps, size_t deps_size) {
+    // avoid circular dep
     for (size_t i = 0; i < deps_size; i++) {
         if (strcmp(deps[i].dep, target) == 0) {
             return true;
@@ -35,6 +37,7 @@ bool alreadyAdded(char *target, Dependency *deps, size_t deps_size) {
 }
 
 void freeDependencies(Dependency *deps, size_t size) {
+    // i <3 memory
     for (size_t i = 0; i < size; i++) {
         free(deps[i].dep);
         free(deps[i].parent);
@@ -49,6 +52,8 @@ Dependency *getDependencies(const char *file, const char *parent, Dependency *de
 
     snprintf(packagePath, sizeof(packagePath), "/etc/centaur/packages/scripts/%s", file);
 
+    // get latest version of dep
+    // this is going to break when we need specific version :)
     int code = get_latest(packagePath, latest, sizeof(latest));
 
     if (code == -1) {
@@ -90,6 +95,7 @@ Dependency *getDependencies(const char *file, const char *parent, Dependency *de
         }
         line[strcspn(line, "\n")] = '\0';
         if (!alreadyAdded(line, deps, *deps_size)) {
+            // recursion RAAHHH
             deps = getDependencies(line, file, deps, deps_size);
         }
         else {
