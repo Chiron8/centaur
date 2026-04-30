@@ -41,7 +41,6 @@ int install(char package[], char parent[]) {
 
     if (code == -1) {
         // could not get latest version
-        printf("%s\n", scriptDirectory);
         printf("%s\n", "Something went wrong :O");
         exit(1);
     }
@@ -62,9 +61,21 @@ int install(char package[], char parent[]) {
     }
 
     FILE *fptr = fopen(installPath, "w");
+
     // is a dep of blah
     if (fptr && parent != NULL) {
-        fprintf(fptr, "%s\n", parent);
+        char parentLatest[100];
+        char parentDirectory[300];
+
+        snprintf(parentDirectory, sizeof(parentDirectory), "%s/scripts/%s", BASE_DIR, parent); 
+        int parentCode = get_latest(parentDirectory, parentLatest, sizeof(parentLatest));
+
+        if (parentCode == -1) {
+            perror("could not get latest parent");
+            exit(1);
+        }
+
+        fprintf(fptr, "%s\n", parentLatest);
         fclose(fptr);
     }
      
