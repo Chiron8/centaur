@@ -1,0 +1,10 @@
+=== ADD DEPS ABOVE THIS LINE ===
+echo "cloning repo!"
+
+git clone https://github.com/abhinow03/quicksplat.git ~/quicksplat
+
+echo "running script!"
+
+bash ~/quicksplat/install/setup_linux.sh
+
+echo "Finished!"
