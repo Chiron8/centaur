@@ -7,6 +7,28 @@
 
 #define BASE_DIR "/etc/centaur/packages"
 
+int add_deps_to_file(char scriptFile[], char installFile[]) {
+    char line[150];
+    FILE *script_ptr = fopen(scriptFile, "r");
+    FILE *install_ptr = fopen(installFile, "a");
+
+    if (script_ptr == NULL || install_ptr == NULL) {
+        printf("%s\n", "Could not open file to add dependencies to parent install file.");
+        exit(1);
+    }
+
+    fprintf(install_ptr, "%s\n", "=== STUFF ABOVE = PARENT PACKAGES, STUFF BELOW = DEPENDENCIES ===");
+
+    while (fgets(line, sizeof(line), script_ptr)) {
+        if (line[0] == '=') {
+            break;
+        }
+        fprintf(install_ptr, "%s\n", line);
+    }
+    fclose(script_ptr);
+    fclose(install_ptr);
+    return 0;
+}
 
 int install(char package[], char parent[]) {
     // package = something-1.2.3.centaur
@@ -46,5 +68,6 @@ int install(char package[], char parent[]) {
         fclose(fptr);
     }
      
+    add_deps_to_file(scriptPath, installPath);
     return 0;
 }

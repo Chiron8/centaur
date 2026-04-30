@@ -24,12 +24,11 @@ void dep_check(char file[], char package[]) {
     FILE *fptr = fopen(file, "r");
     char line[256];
 
-    if (fgets(line, 256, fptr) != NULL) {
-        fclose(fptr);
-        FILE *fptr = fopen(file, "r");
-        char line[256];
+    if (fgets(line, 256, fptr) && line[0] == '=') {
+        return;
+    } else {
         printf("%s %s%s\n", "The following dependencies still rely on", package, ":");
-        while (fgets(line, 256, fptr)) {
+        while (fgets(line, 256, fptr) && line[0] != '=') {
             // print every dep
             printf(" - %s\n", line);
         }
