@@ -70,7 +70,7 @@ int cat_command(bool newCommand, size_t *currentLen, size_t lineLen, size_t *cap
     return 0;
 }
 
-int read_execute(char file[], bool force) {
+int read_execute(char file[], bool force, bool uninstall) {
 
     // load file
     FILE *fptr = fopen(file, "r");
@@ -87,9 +87,11 @@ int read_execute(char file[], bool force) {
     command[0] = '\0';
     bool prevBlank = false;
 
-    while (fgets(line, sizeof(line), fptr) && line[0] != '=') {
-        // skip dependency declaration
-        continue;
+    if (!uninstall) {
+        while (fgets(line, sizeof(line), fptr) && line[0] != '=') {
+            // skip dependency declaration
+            continue;
+        }
     }
 
     while (fgets(line, sizeof(line), fptr)) { // read lines one at a time
@@ -112,7 +114,6 @@ int read_execute(char file[], bool force) {
         prevBlank = false;
     }
 
-    printf("%s\n", command);
     if (system(command) > 0) {
         free(command);
         fclose(fptr);

@@ -58,9 +58,7 @@ int uninstall(char package[], int force) {
     char uninstallPath[200];
     snprintf(uninstallPath, sizeof(uninstallPath), "%s/uninstall/%s%s", BASE_DIR, package, ".centaur");
 
-    printf("%s\n", uninstallPath);
-
-    read_execute(uninstallPath, force);
+    read_execute(uninstallPath, force, true);
 
     if (remove(installPath) | remove(uninstallPath)) { // ensure both run
         if (force != 1) {

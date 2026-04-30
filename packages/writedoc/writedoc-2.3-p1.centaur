@@ -26,16 +26,13 @@ echo "Adding uninstall scripts..."
 
 export UNINSTALL="/etc/centaur/packages/uninstall/writedoc-2.3-p1.centaur"
 
-echo -e "rm /usr/local/bin/writedoc || echo FAIL\n" |
+echo -e "rm /usr/local/bin/writedoc\n" |
 tee -a $UNINSTALL
 
-echo -e "rm /usr/local/share/man/man1/writedoc.1 || echo FAIL\n" |
+echo -e "rm /usr/local/share/man/man1/writedoc.1\n" |
 tee -a $UNINSTALL
 
-echo -e "rm -r /usr/local/share/writedoc || echo FAIL\n" |
-tee -a $UNINSTALL
-
-echo -e "echo 'hello!'\n" |
+echo -e "rm -r /usr/local/share/writedoc\n" |
 tee -a $UNINSTALL
 
 echo "Finished!"

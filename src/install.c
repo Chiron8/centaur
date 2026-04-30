@@ -34,7 +34,7 @@ int install(char package[], char parent[]) {
         return 1;
     } 
 
-    if (read_execute(scriptPath, false) == 1) {
+    if (read_execute(scriptPath, false, false) == 1) {
         printf("%s %s%s\n", "ERROR: could not install package ", package, ", trying clean-up...");
         uninstall(package, true);
     }
