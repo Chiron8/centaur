@@ -38,7 +38,12 @@ install(DIRECTORY doc/
   DESTINATION ${CMAKE_INSTALL_SYSCONFDIR}/centaur/doc
 )
 
-# Consider removing /tmp handling; shown here only if you truly need it:
+file(WRITE "${CMAKE_BINARY_DIR}/centaur-tmpfiles.conf"
+"d /tmp/centaur 0755 root root -\n")
+
+install(FILES "${CMAKE_BINARY_DIR}/centaur-tmpfiles.conf"
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/tmpfiles.d)
+
 install(CODE [[
   file(MAKE_DIRECTORY "$ENV{DESTDIR}${CMAKE_INSTALL_FULL_SYSCONFDIR}/centaur/packages/installed")
   file(MAKE_DIRECTORY "$ENV{DESTDIR}${CMAKE_INSTALL_FULL_SYSCONFDIR}/centaur/packages/uninstall")

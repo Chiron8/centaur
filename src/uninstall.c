@@ -3,6 +3,7 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <string.h>
+#include <dirent.h>
 
 #define BASE_DIR "/etc/centaur/packages"
 
@@ -46,6 +47,41 @@ int remove_line(const char *file, const char *target) {
     }
 
     return removed;
+}
+
+// I've now come to the conclusion that I have no idea what I'm doin
+int remove_parent_from_installed_versions_of_dep(const char directory[], const char installPath[], const char package[]) {
+    FILE *fptr = fopen(installPath, "r");
+    char line[256];
+    char depFile[512];
+    char result[512];
+
+    snprintf(result, sizeof(result), "%s%s", package, ".centaur");
+
+    DIR *dir = opendir(directory);
+    struct dirent *entry;
+
+    if (!dir) {
+        perror("opendir");
+        return 1;
+    }
+
+    // only bother reading dependencies
+    while (fgets(line, 256, fptr) && line[0] != '=') {
+        continue;
+    }
+
+    while (fgets(line, 256, fptr)) {
+        line[strcspn(line, "\n")] = 0;
+        while ((entry = readdir(dir)) != NULL) {
+            if (strstr(entry->d_name, line)) {
+                snprintf(depFile, sizeof(depFile), "%s%s", "/etc/centaur/packages/installed/", entry->d_name);
+                remove_line(depFile, result);
+            }
+        }
+    }
+    fclose(fptr);
+    return 0;
 }
 
 char* remove_version(char package[]) {
@@ -101,18 +137,8 @@ int uninstall(char package[], int force) {
 
     read_execute(uninstallPath, force, true);
     
-    FILE *fptr = fopen(installPath, "r");
-    char line[256];
-    char parentFile[512];
-    char result[512];
+    remove_parent_from_installed_versions_of_dep("/etc/centaur/packages/installed", installPath, package);
 
-    while (fgets(line, 256, fptr) && line[0] != '=') {
-        line[strcspn(line, "\n")] = 0;
-        snprintf(parentFile, sizeof(parentFile), "%s%s", "/etc/centaur/packages/installed/", line);
-        snprintf(result, sizeof(result), "%s%s", package, ".centaur");
-        printf("%s\n%s\n", parentFile, package);
-        remove_line(parentFile, package);
-    }
 
     printf("%s %s\n", package, "uninstalled!");
 
