@@ -32,6 +32,7 @@ int add_deps_to_file(char scriptFile[], char installFile[]) {
 
 int install(char package[], char parent[]) {
     // package = something-1.2.3.centaur
+// awesome!!!
     char scriptDirectory[200]; // package directory (not specific version)
     snprintf(scriptDirectory, sizeof(scriptDirectory), "%s/scripts/%s", BASE_DIR, package);
 

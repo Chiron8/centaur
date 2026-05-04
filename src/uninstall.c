@@ -15,7 +15,7 @@ int remove_line(const char *file, const char *target) {
         exit(1);
     }
 
-    FILE *out = fopen("/tmp/centaur/temp.txt", "w");
+    FILE *out = fopen("/etc/centaur/tmp/temp.txt", "w");
     if (!out) {
         perror("Failed to open temp file");
         fclose(in);
@@ -41,7 +41,7 @@ int remove_line(const char *file, const char *target) {
     fclose(in);
     fclose(out);
 
-    if (remove(file) != 0 || rename("/tmp/centaur/temp.txt", file) != 0) {
+    if (remove(file) || rename("/etc/centaur/tmp/temp.txt", file) != 0) {
         perror("Failed to replace original file");
         exit(1);
     }

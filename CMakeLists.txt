@@ -47,4 +47,5 @@ install(FILES "${CMAKE_BINARY_DIR}/centaur-tmpfiles.conf"
 install(CODE [[
   file(MAKE_DIRECTORY "$ENV{DESTDIR}${CMAKE_INSTALL_FULL_SYSCONFDIR}/centaur/packages/installed")
   file(MAKE_DIRECTORY "$ENV{DESTDIR}${CMAKE_INSTALL_FULL_SYSCONFDIR}/centaur/packages/uninstall")
+  file(MAKE_DIRECTORY "$ENV{DESTDIR}${CMAKE_INSTALL_FULL_SYSCONFDIR}/centaur/tmp")
 ]])
