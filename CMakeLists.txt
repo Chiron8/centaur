@@ -31,11 +31,11 @@ install(TARGETS centaur
 )
 
 install(DIRECTORY packages/
-  DESTINATION ${CMAKE_INSTALL_SYSCONFDIR}/centaur/packages/scripts
+  DESTINATION /etc/centaur/packages/scripts
 )
 
 install(DIRECTORY doc/
-  DESTINATION ${CMAKE_INSTALL_SYSCONFDIR}/centaur/doc
+  DESTINATION /etc/centaur/doc
 )
 
 file(WRITE "${CMAKE_BINARY_DIR}/centaur-tmpfiles.conf"
@@ -45,7 +45,7 @@ install(FILES "${CMAKE_BINARY_DIR}/centaur-tmpfiles.conf"
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/tmpfiles.d)
 
 install(CODE [[
-  file(MAKE_DIRECTORY "$ENV{DESTDIR}${CMAKE_INSTALL_FULL_SYSCONFDIR}/centaur/packages/installed")
-  file(MAKE_DIRECTORY "$ENV{DESTDIR}${CMAKE_INSTALL_FULL_SYSCONFDIR}/centaur/packages/uninstall")
-  file(MAKE_DIRECTORY "$ENV{DESTDIR}${CMAKE_INSTALL_FULL_SYSCONFDIR}/centaur/tmp")
+  file(MAKE_DIRECTORY "/etc/centaur/packages/installed")
+  file(MAKE_DIRECTORY "/etc/centaur/packages/uninstall")
+  file(MAKE_DIRECTORY "/etc/centaur/tmp")
 ]])

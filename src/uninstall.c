@@ -105,6 +105,9 @@ void dep_check(char file[], char package[]) {
     if (fgets(line, 256, fptr) && line[0] == '=') {
         return;
     } else {
+        fclose(fptr);
+        FILE *fptr = fopen(file, "r");
+        char line[256];
         printf("%s %s%s\n", "The following dependencies still rely on", package, ":");
         while (fgets(line, 256, fptr) && line[0] != '=') {
             // print every dep
