@@ -53,11 +53,6 @@ int main(int argc, char *argv[]) {
         return 0;
     }
 
-    if (argc < 3) {
-        print_usage();
-        return 1;
-    }
-
     check_root();
 
     char package[150];
@@ -65,6 +60,12 @@ int main(int argc, char *argv[]) {
     // clean needs root but doesn't have any extra args
     if (strcmp(instruction, "clean") == 0) {
         clean();
+        return 0;
+    }
+
+    if (argc < 3) {
+        print_usage();
+        return 1;
     }
 
     snprintf(package, sizeof(package), "%s", argv[2]);
@@ -90,11 +91,6 @@ int main(int argc, char *argv[]) {
             install(deps[i].dep, deps[i].parent);
         }
         freeDependencies(deps, total_deps);
-
-        char world_file[512];
-        snprintf(world_file, sizeof(world_file), "%s%s", "/etc/centaur/packages/world", package);
-        FILE *fptr = fopen(world_file, "w");
-        fclose(fptr);
     }
     else if (strcmp(instruction, "uninstall") == 0) {
         // force uninstall if force keyword is passed

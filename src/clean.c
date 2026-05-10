@@ -19,9 +19,16 @@ int check_file(const char name[]) {
     }
 
     char installPath[512];
-    snprintf(installPath, sizeof(installPath), "%s%s", "/etc/centaur/packages/installed", name);
+    snprintf(installPath, sizeof(installPath), "%s%s", "/etc/centaur/packages/installed/", name);
 
     FILE *install_fptr = fopen(installPath, "r");
+
+    if (install_fptr == NULL) {
+        printf(installPath);
+        perror("Could not open install file");
+        return 1;
+    }
+
     char line[256];
 
     if (fgets(line, 256, install_fptr) && line[0] == '=') {
@@ -38,6 +45,8 @@ int clean() {
         while ((ent = readdir(dir)) != NULL) {
             if (strcmp(ent->d_name, "..") != 0 && strcmp(ent->d_name, ".") != 0) {
                 if (check_file(ent->d_name) == 0) {
+                    int len = strlen(ent->d_name);
+                    ent->d_name[len-8] = '\0';
                     uninstall(ent->d_name, false);
                 }
             }

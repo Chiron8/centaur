@@ -63,6 +63,13 @@ int install(char package[], char parent[]) {
 
     FILE *fptr = fopen(installPath, "w");
 
+    if (parent == NULL) {
+        char world_file[512];
+        snprintf(world_file, sizeof(world_file), "%s%s", "/etc/centaur/packages/world/", latest);
+        FILE *fptr = fopen(world_file, "w");
+        fclose(fptr);
+    }
+
     // is a dep of blah
     if (fptr && parent != NULL) {
         char parentLatest[100];

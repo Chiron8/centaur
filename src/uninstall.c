@@ -145,10 +145,18 @@ int uninstall(char package[], int force) {
 
     printf("%s %s\n", package, "uninstalled!");
 
+    char worldPath[512];
+    snprintf(worldPath, sizeof(worldPath), "%s%s%s", "/etc/centaur/packages/world/", package, ".centaur");
+
+    if (access(worldPath, F_OK) == 0) {
+        if (remove(worldPath)) {
+            perror("Error removing world files!");
+        }
+    }
+
     if (remove(installPath) | remove(uninstallPath)) { // ensure both run
         if (force != 1) {
-            printf("%s\n", "Error removing files!");
-            exit(1);
+            perror("Error removing install or uninstall files");
         }
     }
     return 0;
