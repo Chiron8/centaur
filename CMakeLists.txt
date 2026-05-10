@@ -14,6 +14,7 @@ add_executable(centaur
   src/parse.c
   src/uninstall.c
   src/dependencies.c
+  src/clean.c
 )
 
 target_compile_options(centaur PRIVATE
@@ -47,5 +48,6 @@ install(FILES "${CMAKE_BINARY_DIR}/centaur-tmpfiles.conf"
 install(CODE [[
   file(MAKE_DIRECTORY "/etc/centaur/packages/installed")
   file(MAKE_DIRECTORY "/etc/centaur/packages/uninstall")
+  file(MAKE_DIRECTORY "/etc/centaur/packages/world")
   file(MAKE_DIRECTORY "/etc/centaur/tmp")
 ]])

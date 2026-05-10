@@ -12,6 +12,7 @@
 #include "license.h"
 #include "list.h"
 #include "dependencies.h"
+#include "clean.h"
 
 void print_usage() {
     // error message
@@ -60,6 +61,12 @@ int main(int argc, char *argv[]) {
     check_root();
 
     char package[150];
+
+    // clean needs root but doesn't have any extra args
+    if (strcmp(instruction, "clean") == 0) {
+        clean();
+    }
+
     snprintf(package, sizeof(package), "%s", argv[2]);
 
     // why can't c do switch case for strings >:(
@@ -83,6 +90,11 @@ int main(int argc, char *argv[]) {
             install(deps[i].dep, deps[i].parent);
         }
         freeDependencies(deps, total_deps);
+
+        char world_file[512];
+        snprintf(world_file, sizeof(world_file), "%s%s", "/etc/centaur/packages/world", package);
+        FILE *fptr = fopen(world_file, "w");
+        fclose(fptr);
     }
     else if (strcmp(instruction, "uninstall") == 0) {
         // force uninstall if force keyword is passed
