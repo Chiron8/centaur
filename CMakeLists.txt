@@ -15,6 +15,7 @@ add_executable(centaur
   src/uninstall.c
   src/dependencies.c
   src/clean.c
+  src/hash/sha256.c
 )
 
 target_compile_options(centaur PRIVATE
@@ -26,6 +27,8 @@ option(CENTAUR_NATIVE "Enable -march=native" OFF)
 if(CENTAUR_NATIVE)
   target_compile_options(centaur PRIVATE -march=native)
 endif()
+
+# Install stuff
 
 install(TARGETS centaur
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
@@ -43,7 +46,8 @@ file(WRITE "${CMAKE_BINARY_DIR}/centaur-tmpfiles.conf"
 "d /tmp/centaur 0755 root root -\n")
 
 install(FILES "${CMAKE_BINARY_DIR}/centaur-tmpfiles.conf"
-    DESTINATION ${CMAKE_INSTALL_LIBDIR}/tmpfiles.d)
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/tmpfiles.d
+)
 
 install(CODE [[
   file(MAKE_DIRECTORY "/etc/centaur/packages/installed")
