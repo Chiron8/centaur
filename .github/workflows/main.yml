@@ -16,6 +16,8 @@ jobs:
       # Step 1: Checkout the repo
       - name: Checkout repository
         uses: actions/checkout@v3
+        with:
+          fetch-depth 2
 
       # Step 2: Generate SHA256 hashes only for changed files
       - name: Generate SHA256 hashes for changed files
@@ -23,10 +25,10 @@ jobs:
           mkdir -p packages/HASHES
 
           # Get list of changed files in this commit/PR, only in packages/, ignore hashes folder
-          if [ -n "$GITHUB_SHA" ]; then
+          if git rev-parse "$GITHUB_SHA^" >/dev/null 2>&1; then
             CHANGED_FILES=$(git diff --name-only "$GITHUB_SHA^" "$GITHUB_SHA" -- packages/ | grep -v '^packages/HASHES/')
           else
-            CHANGED_FILES=$(git diff --name-only HEAD~1 HEAD -- packages/ | grep -v '^packages/HASHES/')
+            CHANGED_FILES=$(git ls-tree -r --name-only "$GITHUB_SHA" -- packages/ | grep -v '^packages/HASHES/')
           fi
 
           echo "Changed files:"
