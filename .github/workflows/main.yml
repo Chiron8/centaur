@@ -20,13 +20,13 @@ jobs:
       # Step 2: Generate SHA256 hashes only for changed files
       - name: Generate SHA256 hashes for changed files
         run: |
-          mkdir -p packages/hashes
+          mkdir -p packages/HASHES
 
           # Get list of changed files in this commit/PR, only in packages/, ignore hashes folder
           if [ -n "$GITHUB_SHA" ]; then
-            CHANGED_FILES=$(git diff --name-only "$GITHUB_SHA^" "$GITHUB_SHA" -- packages/ | grep -v '^packages/hashes/')
+            CHANGED_FILES=$(git diff --name-only "$GITHUB_SHA^" "$GITHUB_SHA" -- packages/ | grep -v '^packages/HASHES/')
           else
-            CHANGED_FILES=$(git diff --name-only HEAD~1 HEAD -- packages/ | grep -v '^packages/hashes/')
+            CHANGED_FILES=$(git diff --name-only HEAD~1 HEAD -- packages/ | grep -v '^packages/HASHES/')
           fi
 
           echo "Changed files:"
@@ -38,7 +38,7 @@ jobs:
             if [ -f "$file" ]; then
               # Get path relative to packages/ for hash output
               relative_path="${file#packages/}"
-              hash_dir="packages/hashes/$(dirname "$relative_path")"
+              hash_dir="packages/HASHES/$(dirname "$relative_path")"
               mkdir -p "$hash_dir"
 
               # Compute SHA256 and save it
@@ -52,7 +52,7 @@ jobs:
         run: |
           git config --local user.name "github-actions[bot]"
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
-          git add packages/hashes/
+          git add packages/HASHES/
           if ! git diff --cached --quiet; then
             git commit -m "Update SHA256 hashes for changed files"
             git push
