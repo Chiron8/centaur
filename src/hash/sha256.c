@@ -18,6 +18,8 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+// slightly edited by yours truly
+
 #include <string.h>
 
 #include "sha256.h"
@@ -286,7 +288,7 @@ static char *val[] =
     "f1809a48a497200e046d39ccc7112cd0"
 };
 
-int main( int argc, char *argv[] )
+int calc( int argc, char *argv[] )
 {
     FILE *f;
     int i, j;
@@ -359,8 +361,7 @@ int main( int argc, char *argv[] )
         {
             printf( "%02x", sha256sum[j] );
         }
-
-        printf( "  %s\n", argv[1] );
+        printf("\n");
     }
 
     return( 0 );
