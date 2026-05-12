@@ -15,6 +15,7 @@ add_executable(centaur
   src/uninstall.c
   src/dependencies.c
   src/clean.c
+  src/curl.c
   src/hash/sha256.c
 )
 
