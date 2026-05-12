@@ -1,0 +1,60 @@
+name: Generate SHA256 Hashes for Changed Files
+
+on:
+  push:
+    paths:
+      - 'packages/**'
+  pull_request:
+    paths:
+      - 'packages/**'
+
+jobs:
+  generate-hashes:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout the repo
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # Step 2: Generate SHA256 hashes only for changed files
+      - name: Generate SHA256 hashes for changed files
+        run: |
+          mkdir -p packages/hashes
+
+          # Get list of changed files in this commit/PR, only in packages/, ignore hashes folder
+          if [ -n "$GITHUB_SHA" ]; then
+            CHANGED_FILES=$(git diff --name-only "$GITHUB_SHA^" "$GITHUB_SHA" -- packages/ | grep -v '^packages/hashes/')
+          else
+            CHANGED_FILES=$(git diff --name-only HEAD~1 HEAD -- packages/ | grep -v '^packages/hashes/')
+          fi
+
+          echo "Changed files:"
+          echo "$CHANGED_FILES"
+
+          # Loop through changed files
+          for file in $CHANGED_FILES; do
+            # Only process files (skip directories)
+            if [ -f "$file" ]; then
+              # Get path relative to packages/ for hash output
+              relative_path="${file#packages/}"
+              hash_dir="packages/hashes/$(dirname "$relative_path")"
+              mkdir -p "$hash_dir"
+
+              # Compute SHA256 and save it
+              sha256sum "$file" | awk '{print $1}' > "$hash_dir/$(basename "$file")"
+              echo "Generated hash for $file -> $hash_dir/$(basename "$file")"
+            fi
+          done
+
+      # Step 3: Commit and push hashes if changed
+      - name: Commit and push hashes
+        run: |
+          git config --local user.name "github-actions[bot]"
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git add packages/hashes/
+          if ! git diff --cached --quiet; then
+            git commit -m "Update SHA256 hashes for changed files"
+            git push
+          else
+            echo "No changes to commit"
