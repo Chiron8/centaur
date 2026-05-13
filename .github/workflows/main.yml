@@ -8,6 +8,9 @@ on:
     paths:
       - 'packages/**'
 
+permissions:
+  contents: write
+
 jobs:
   generate-hashes:
     runs-on: ubuntu-latest
@@ -56,6 +59,7 @@ jobs:
 
       # Step 3: Commit and push hashes if changed
       - name: Commit and push hashes
+        if: github.event_name == 'push'
         run: |
           git config --local user.name "github-actions[bot]"
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
