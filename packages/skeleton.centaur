@@ -1,3 +1,4 @@
 === ADD DEPENDENCIES ABOVE THIS LINE ===
 # this is a skeleton file
+# put bash commands below...
 echo "hello world!"
