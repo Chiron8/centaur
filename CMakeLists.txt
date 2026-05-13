@@ -19,6 +19,9 @@ add_executable(centaur
   src/hash/sha256.c
 )
 
+find_package(CURL REQUIRED)
+target_link_libraries(centaur PRIVATE CURL::libcurl)
+
 target_compile_options(centaur PRIVATE
   -Wall -Wextra -Wpedantic
   $<$<CONFIG:Release>:-O2>
