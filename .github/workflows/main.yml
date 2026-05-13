@@ -13,39 +13,44 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Checkout the repo
+      # Step 1: Checkout the repository
       - name: Checkout repository
         uses: actions/checkout@v3
         with:
-          fetch-depth 2
+          fetch-depth: 2  # ensures we can compare with previous commit
 
-      # Step 2: Generate SHA256 hashes only for changed files
+      # Step 2: Generate SHA256 hashes for changed files
       - name: Generate SHA256 hashes for changed files
         run: |
-          mkdir -p packages/HASHES
+          set -e  # exit if any command fails
+          HASH_DIR="packages/HASHES"
+          mkdir -p "$HASH_DIR"
 
-          # Get list of changed files in this commit/PR, only in packages/, ignore hashes folder
+          # Determine changed files
           if git rev-parse "$GITHUB_SHA^" >/dev/null 2>&1; then
-            CHANGED_FILES=$(git diff --name-only "$GITHUB_SHA^" "$GITHUB_SHA" -- packages/ | grep -v '^packages/HASHES/')
+            # Normal case: there is a parent commit
+            CHANGED_FILES=$(git diff --name-only "$GITHUB_SHA^" "$GITHUB_SHA" -- packages/ | grep -v "^$HASH_DIR/")
           else
-            CHANGED_FILES=$(git ls-tree -r --name-only "$GITHUB_SHA" -- packages/ | grep -v '^packages/HASHES/')
+            # First commit or orphan branch: take all files
+            CHANGED_FILES=$(git ls-tree -r --name-only "$GITHUB_SHA" -- packages/ | grep -v "^$HASH_DIR/")
           fi
 
-          echo "Changed files:"
+          if [ -z "$CHANGED_FILES" ]; then
+            echo "No changed files detected."
+            exit 0
+          fi
+
+          echo "Changed files detected:"
           echo "$CHANGED_FILES"
 
           # Loop through changed files
           for file in $CHANGED_FILES; do
-            # Only process files (skip directories)
             if [ -f "$file" ]; then
-              # Get path relative to packages/ for hash output
               relative_path="${file#packages/}"
-              hash_dir="packages/HASHES/$(dirname "$relative_path")"
-              mkdir -p "$hash_dir"
-
-              # Compute SHA256 and save it
-              sha256sum "$file" | awk '{print $1}' > "$hash_dir/$(basename "$file")"
-              echo "Generated hash for $file -> $hash_dir/$(basename "$file")"
+              hash_subdir="$HASH_DIR/$(dirname "$relative_path")"
+              mkdir -p "$hash_subdir"
+              sha256sum "$file" | awk '{print $1}' > "$hash_subdir/$(basename "$file")"
+              echo "Generated hash for $file -> $hash_subdir/$(basename "$file")"
             fi
           done
 
@@ -59,4 +64,4 @@ jobs:
             git commit -m "Update SHA256 hashes for changed files"
             git push
           else
-            echo "No changes to commit"
+            echo "No changes to commit."
