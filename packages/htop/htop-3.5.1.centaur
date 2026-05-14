@@ -1,0 +1,30 @@
+=== ADD DEPENDENCIES ABOVE THIS LINE ===
+echo "Downloading tarball..."
+
+wget https://github.com/htop-dev/htop/archive/refs/tags/3.5.1.tar.gz -O /tmp/centaur/htop.tar.gz
+
+tar -xf /tmp/centaur/htop.tar.gz -C /tmp/centaur
+
+cd /tmp/centaur/htop/
+
+echo "configuring and compiling..."
+
+./configure
+
+make
+
+make install
+
+echo "installing uninstall scripts..."
+
+export UNINSTALL="/etc/centaur/packages/uninstall/htop-3.5.1.centaur"
+
+echo -e "rm -rf ~/.config/htop" |
+tee -a $UNINSTALL
+
+echo -e "rm /usr/bin/htop" |
+tee -a $UNINSTALL
+
+echo "Finished!"
+
+
