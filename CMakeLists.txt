@@ -50,7 +50,7 @@ file(WRITE "${CMAKE_BINARY_DIR}/centaur-tmpfiles.conf"
 "d /tmp/centaur 0755 root root -\n")
 
 install(FILES "${CMAKE_BINARY_DIR}/centaur-tmpfiles.conf"
-    DESTINATION ${CMAKE_INSTALL_LIBDIR}/tmpfiles.d
+        DESTINATION /usr/lib/tmpfiles.d
 )
 
 install(CODE [[
