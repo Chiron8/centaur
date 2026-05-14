@@ -1,6 +1,6 @@
-#include <stdio.h>
 #include <curl/curl.h> // might write own implementation later
 #include <string.h>
+#include <stdio.h>
 
 size_t write_data(void *ptr, size_t size, size_t nmemb, FILE *stream) {
     size_t written = fwrite(ptr, size, nmemb, stream);
@@ -14,7 +14,7 @@ int download_hash(const char package[], const char noversion[]) {
     snprintf(url, sizeof(url), "https://raw.githubusercontent.com/Chiron8/centaur/refs/heads/master/packages/HASHES/%s/%s", noversion, package);
 
     char outputFile[256];
-    snprintf(outputFile, sizeof(outputFile), "%s%s%s", "/etc/centaur/tmp/", noversion, package);
+    snprintf(outputFile, sizeof(outputFile), "%s/%s%s", "/etc/centaur/tmp", noversion, package); // no / on purpose, don't want to make dir
 
     curl = curl_easy_init();
     if (curl) {

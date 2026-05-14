@@ -262,8 +262,6 @@ void sha256_finish( sha256_context *ctx, uint8 digest[32] )
     PUT_UINT32( ctx->state[7], digest, 28 );
 }
 
-#ifdef TEST
-
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -271,7 +269,7 @@ void sha256_finish( sha256_context *ctx, uint8 digest[32] )
  * those are the standard FIPS-180-2 test vectors
  */
 
-static char *msg[] =
+/*static char *msg[] =
 {
     "abc",
     "abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq",
@@ -288,83 +286,46 @@ static char *val[] =
     "f1809a48a497200e046d39ccc7112cd0"
 };
 
-int calc( int argc, char *argv[] )
+THESE ARE UNUSED FOR NOW
+
+*/
+
+char *calculate_hash(char file[])
 {
     FILE *f;
     int i, j;
-    char output[65];
     sha256_context ctx;
     unsigned char buf[1000];
     unsigned char sha256sum[32];
 
-    if( argc < 2 )
+    if( ! ( f = fopen( file, "rb" ) ) )
     {
-        printf( "\n SHA-256 Validation Tests:\n\n" );
-
-        for( i = 0; i < 3; i++ )
-        {
-            printf( " Test %d ", i + 1 );
-
-            sha256_starts( &ctx );
-
-            if( i < 2 )
-            {
-                sha256_update( &ctx, (uint8 *) msg[i],
-                               strlen( msg[i] ) );
-            }
-            else
-            {
-                memset( buf, 'a', 1000 );
-
-                for( j = 0; j < 1000; j++ )
-                {
-                    sha256_update( &ctx, (uint8 *) buf, 1000 );
-                }
-            }
-
-            sha256_finish( &ctx, sha256sum );
-
-            for( j = 0; j < 32; j++ )
-            {
-                sprintf( output + j * 2, "%02x", sha256sum[j] );
-            }
-
-            if( memcmp( output, val[i], 64 ) )
-            {
-                printf( "failed!\n" );
-                return( 1 );
-            }
-
-            printf( "passed.\n" );
-        }
-
-        printf( "\n" );
-    }
-    else
-    {
-        if( ! ( f = fopen( argv[1], "rb" ) ) )
-        {
-            perror( "fopen" );
-            return( 1 );
-        }
-
-        sha256_starts( &ctx );
-
-        while( ( i = fread( buf, 1, sizeof( buf ), f ) ) > 0 )
-        {
-            sha256_update( &ctx, buf, i );
-        }
-
-        sha256_finish( &ctx, sha256sum );
-
-        for( j = 0; j < 32; j++ )
-        {
-            printf( "%02x", sha256sum[j] );
-        }
-        printf("\n");
+        perror( "fopen" );
+        exit(1);
     }
 
-    return( 0 );
+    sha256_starts( &ctx );
+
+    while( ( i = fread( buf, 1, sizeof( buf ), f ) ) > 0 )
+    {
+        sha256_update( &ctx, buf, i );
+    }
+
+    sha256_finish( &ctx, sha256sum );
+    char hash[65];
+
+    for( j = 0; j < 32; j++ )
+    {
+        snprintf(hash + j * 2, 3, "%02x", sha256sum[j]);
+    }
+
+    hash[64] = '\0';
+
+    char *result = malloc(strlen(hash+1));
+    if (result == NULL) {
+        perror("malloc failed");
+        exit(1);
+    }
+    strcpy(result, hash);
+    return result;
 }
-
-#endif

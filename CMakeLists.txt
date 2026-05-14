@@ -16,7 +16,7 @@ add_executable(centaur
   src/dependencies.c
   src/clean.c
   src/curl.c
-  src/hash/sha256.c
+  src/sha256.c
 )
 
 find_package(CURL REQUIRED)
