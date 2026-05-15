@@ -9,6 +9,8 @@ cd /tmp/centaur/htop-3.5.1/
 
 echo "configuring and compiling..."
 
+./autogen.sh
+
 ./configure
 
 make
