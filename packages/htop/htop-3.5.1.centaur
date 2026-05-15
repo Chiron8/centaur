@@ -32,7 +32,7 @@ export UNINSTALL="/etc/centaur/packages/uninstall/htop-3.5.1.centaur"
 echo -e "rm -rf ~/.config/htop" |
 tee -a $UNINSTALL
 
-echo -e "rm /usr/bin/htop" |
+echo -e "rm /usr/local/bin/htop" |
 tee -a $UNINSTALL
 
 echo "Finished!"
