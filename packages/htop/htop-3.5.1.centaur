@@ -29,12 +29,10 @@ echo "installing uninstall scripts..."
 
 export UNINSTALL="/etc/centaur/packages/uninstall/htop-3.5.1.centaur"
 
-echo -e "rm -rf ~/.config/htop" |
+echo -e "rm -rf ~/.config/htop\n" |
 tee -a $UNINSTALL
 
-echo -e "rm /usr/local/bin/htop" |
+echo -e "rm /usr/local/bin/htop\n" |
 tee -a $UNINSTALL
 
 echo "Finished!"
-
-
