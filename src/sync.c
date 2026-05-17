@@ -110,10 +110,65 @@ int download_package_dir() {
     return 0;
 }
 
+static int extract_tar(const char *filename, const char *dest_dir) {
+    struct archive *a = archive_read_new();
+    struct archive *ext = archive_write_disk_new();
+    struct archive_entry *entry;
+
+    archive_read_support_format_tar(a);
+    archive_read_support_filter_gzip(a); // for .tar.gz
+
+    archive_write_disk_set_options(ext,
+        ARCHIVE_EXTRACT_TIME |
+        ARCHIVE_EXTRACT_PERM |
+        ARCHIVE_EXTRACT_ACL |
+        ARCHIVE_EXTRACT_FFLAGS);
+
+    if (archive_read_open_filename(a, filename, 10240) != ARCHIVE_OK)
+        return -1;
+
+    while (archive_read_next_header(a, &entry) == ARCHIVE_OK) {
+        const char *currentFile = archive_entry_pathname(entry);
+
+        // Rewrite path into destination directory
+        char fullpath[1024];
+        snprintf(fullpath, sizeof(fullpath), "%s/%s", dest_dir, currentFile);
+        archive_entry_set_pathname(entry, fullpath);
+
+        int r = archive_write_header(ext, entry);
+        if (r == ARCHIVE_OK) {
+            const void *buff;
+            size_t size;
+            la_int64_t offset;
+
+            while (1) {
+                r = archive_read_data_block(a, &buff, &size, &offset);
+                if (r == ARCHIVE_EOF)
+                    break;
+                if (r < ARCHIVE_OK)
+                    return -2;
+
+                if (archive_write_data_block(ext, buff, size, offset) < ARCHIVE_OK)
+                    return -3;
+            }
+        }
+
+        archive_write_finish_entry(ext);
+    }
+
+    archive_read_close(a);
+    archive_read_free(a);
+
+    archive_write_close(ext);
+    archive_write_free(ext);
+
+    return 0;
+}
+
 int centaur_sync() {
     download_package_dir();
 
-    system("cd /etc/centaur/tmp/ && tar -xf centaur.tar.gz"); // i really cba fighting with libarchive
+    extract_tar("/etc/centaur/tmp/centaur.tar.gz", "/etc/centaur/tmp");
     replace_folders("/etc/centaur/packages", "/etc/centaur/tmp/centaur-master/packages");
     remove_directory("/etc/centaur/tmp/git_centaur");
     remove("/etc/centaur/tmp/centaur.tar.gz");
