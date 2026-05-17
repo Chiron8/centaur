@@ -6,7 +6,7 @@
 #include "sha256.h"
 #include "parse.h"
 #include "uninstall.h"
-#include "curl.h"
+#include "curl_hash.h"
 
 #define BASE_DIR "/etc/centaur/packages"
 

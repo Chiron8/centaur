@@ -13,6 +13,7 @@
 #include "list.h"
 #include "dependencies.h"
 #include "clean.h"
+#include "sync.h"
 
 void print_usage() {
     // error message
@@ -60,6 +61,11 @@ int main(int argc, char *argv[]) {
     // clean needs root but doesn't have any extra args
     if (strcmp(instruction, "clean") == 0) {
         clean();
+        return 0;
+    }
+
+    if (strcmp(instruction, "sync") == 0) {
+        centaur_sync();
         return 0;
     }
 

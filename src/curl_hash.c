@@ -8,9 +8,9 @@ size_t write_data(void *ptr, size_t size, size_t nmemb, FILE *stream) {
 }
 
 int download_hash(const char package[], const char noversion[]) {
+    char url[512];
     CURL *curl;
     FILE *fp;
-    char url[512];
     snprintf(url, sizeof(url), "https://raw.githubusercontent.com/Chiron8/centaur/refs/heads/master/packages/HASHES/%s/%s", noversion, package);
 
     char outputFile[256];

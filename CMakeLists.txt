@@ -15,12 +15,15 @@ add_executable(centaur
   src/uninstall.c
   src/dependencies.c
   src/clean.c
-  src/curl.c
+  src/curl_hash.c
   src/sha256.c
+  src/sync.c
 )
 
 find_package(CURL REQUIRED)
+find_package(LibArchive REQUIRED)
 target_link_libraries(centaur PRIVATE CURL::libcurl)
+target_link_libraries(centaur PRIVATE LibArchive::LibArchive)
 
 target_compile_options(centaur PRIVATE
   -Wall -Wextra -Wpedantic
