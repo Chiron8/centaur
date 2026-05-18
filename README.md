@@ -11,6 +11,8 @@
 - [x] License function
 - [ ] Support installing specific versions
 - [ ] Make output look pretty
+- [ ] Port all LFS required packages to .centaur files
+- [ ] Port BLFS packages to .centaur files
 
 > [!WARNING]
 > A package manager with no bugs is a boring package manager
