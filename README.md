@@ -6,7 +6,7 @@
 - [x] Install function
 - [x] Uninstall function
 - [x] Sync function
-- [ ] Update function
+- [x] Update function
 - [x] List function
 - [x] License function
 - [ ] Support installing specific versions
