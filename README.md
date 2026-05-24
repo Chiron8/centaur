@@ -10,7 +10,7 @@
 - [x] List function
 - [x] License function
 - [ ] Support installing specific versions
-- [ ] Make output look pretty
+- [x] Make output look pretty
 - [ ] Port all LFS required packages to .centaur files
 - [ ] Port BLFS packages to .centaur files
 
