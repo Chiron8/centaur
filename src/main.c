@@ -1,5 +1,3 @@
-// probably GNU GPL v3
-
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h> // to check for root permissions and checks if file exists
@@ -14,6 +12,7 @@
 #include "dependencies.h"
 #include "clean.h"
 #include "sync.h"
+#include "update.h"
 
 void print_usage() {
     // error message
@@ -34,12 +33,6 @@ int check_root() {
 }
 
 int main(int argc, char *argv[]) {
-    if (argc < 3) {
-        // no command or package passed
-        print_usage();
-        return 1;
-    }
-
     // instruct var
     char instruction[50];
     strcpy(instruction, argv[1]);
@@ -64,9 +57,13 @@ int main(int argc, char *argv[]) {
         return 0;
     }
 
-<<<<<<< HEAD
     if (strcmp(instruction, "sync") == 0) {
         centaur_sync();
+        return 0;
+    }
+
+    if (strcmp(instruction, "update") == 0) {
+        update();
         return 0;
     }
 
@@ -75,8 +72,6 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-=======
->>>>>>> 7091bf7 (,)
     snprintf(package, sizeof(package), "%s", argv[2]);
 
     // why can't c do switch case for strings >:(
@@ -101,7 +96,7 @@ int main(int argc, char *argv[]) {
 
         for (size_t i = 0; i < total_deps; i++) {
             // check if package already exists
-            install(deps[i].dep, deps[i].parent);
+            install(deps[i].dep, deps[i].parent, 1);
         }
         freeDependencies(deps, total_deps);
     }

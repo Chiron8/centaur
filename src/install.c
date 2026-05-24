@@ -63,19 +63,23 @@ int add_deps_to_file(char scriptFile[], char installFile[]) {
     return 0;
 }
 
-int install(char package[], char parent[]) {
+int install(char package[], char parent[], int check_for_latest) {
     // package = something-1.2.3.centaur
     char scriptDirectory[200]; // package directory (not specific version)
     snprintf(scriptDirectory, sizeof(scriptDirectory), "%s/scripts/%s", BASE_DIR, package);
 
     char scriptPath[300]; // package script file (includes version)
-    char latest[100];
-    int code = get_latest(scriptDirectory, latest, sizeof(latest)); // latest holds the output not code
+    char latest[128];
 
-    if (code == -1) {
-        // could not get latest version
-        printf("%s\n", "Something went wrong :O");
-        exit(1);
+    if (check_for_latest == 1) {
+        int code = get_latest(scriptDirectory, latest, sizeof(latest)); // latest holds the output not code
+        if (code == -1) {
+            // could not get latest version
+            printf("%s\n", "Something went wrong :O");
+            exit(1);
+        }
+    } else {
+        snprintf(latest, sizeof(latest), "%s", package);
     }
     snprintf(scriptPath, sizeof(scriptPath), "%s/%s", scriptDirectory, latest);
 

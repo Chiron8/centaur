@@ -18,6 +18,7 @@ add_executable(centaur
   src/curl_hash.c
   src/sha256.c
   src/sync.c
+  src/update.c
 )
 
 find_package(CURL REQUIRED)
