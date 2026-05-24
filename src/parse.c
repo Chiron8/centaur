@@ -13,6 +13,7 @@ int get_latest(const char *path, char *latest, size_t size) {
 
     n = scandir(path, &namelist, NULL, versionsort);
     if (n < 0) {
+        printf("%s\n", path);
         perror("scandir");
         return -1;
     }

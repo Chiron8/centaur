@@ -96,7 +96,7 @@ int main(int argc, char *argv[]) {
 
         for (size_t i = 0; i < total_deps; i++) {
             // check if package already exists
-            install(deps[i].dep, deps[i].parent, 1);
+            install(deps[i].dep, deps[i].parent);
         }
         freeDependencies(deps, total_deps);
     }

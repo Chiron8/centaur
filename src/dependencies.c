@@ -57,8 +57,7 @@ Dependency *getDependencies(const char *file, const char *parent, Dependency *de
     int code = get_latest(packagePath, latest, sizeof(latest));
 
     if (code == -1) {
-        printf("%s\n", packagePath);
-        printf("%s\n", "Something went wrong :O");
+        printf("%s\n", "Something went wrong with getting latest (deps.c)");
         exit(1);
     }
 
