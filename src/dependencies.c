@@ -65,8 +65,6 @@ Dependency *getDependencies(const char *file, const char *parent, Dependency *de
     char path[350];
     snprintf(path, sizeof(path), "%s/%s", packagePath, latest);
 
-    printf("%s\n", path);
-
     FILE *fptr = fopen(path, "r");
 
     if (fptr == NULL) {

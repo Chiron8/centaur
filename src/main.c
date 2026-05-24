@@ -34,7 +34,7 @@ int check_root() {
 }
 
 int main(int argc, char *argv[]) {
-    if (argc == 1) {
+    if (argc < 3) {
         // no command or package passed
         print_usage();
         return 1;
@@ -64,6 +64,7 @@ int main(int argc, char *argv[]) {
         return 0;
     }
 
+<<<<<<< HEAD
     if (strcmp(instruction, "sync") == 0) {
         centaur_sync();
         return 0;
@@ -74,6 +75,8 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
+=======
+>>>>>>> 7091bf7 (,)
     snprintf(package, sizeof(package), "%s", argv[2]);
 
     // why can't c do switch case for strings >:(
@@ -90,6 +93,10 @@ int main(int argc, char *argv[]) {
         printf("%s\n", "Installing packages:");
         for (size_t i = 0; i < total_deps; i++) {
             printf("  - %s\n", deps[i].dep);
+        }
+
+        if (argc > 3 && strcmp(argv[3], "pretend") == 0) {
+            return 1;
         }
 
         for (size_t i = 0; i < total_deps; i++) {
