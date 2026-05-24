@@ -169,7 +169,7 @@ int centaur_sync() {
     download_package_dir();
 
     extract_tar("/etc/centaur/tmp/centaur.tar.gz", "/etc/centaur/tmp");
-    replace_folders("/etc/centaur/packages", "/etc/centaur/tmp/centaur-master/packages");
+    replace_folders("/etc/centaur/packages/scripts", "/etc/centaur/tmp/centaur-master/packages");
     remove_directory("/etc/centaur/tmp/git_centaur");
     remove("/etc/centaur/tmp/centaur.tar.gz");
     return 0;
