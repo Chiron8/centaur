@@ -22,18 +22,35 @@ add_executable(centaur
 )
 
 find_package(CURL REQUIRED)
+find_package(Curses REQUIRED)
 find_package(LibArchive REQUIRED)
+
+if(Curses_FOUND AND NOT TARGET Curses::Curses)
+  add_library(Curses::Curses INTERFACE IMPORTED)
+  set_target_properties(
+    Curses::Curses
+    PROPERTIES
+      INTERFACE_LINK_LIBRARIES "${CURSES_LIBRARIES}"
+      INTERFACE_INCLUDE_DIRECTORIES "${CURSES_INCLUDE_DIRS}"
+  )
+endif()
+
 target_link_libraries(centaur PRIVATE CURL::libcurl)
 target_link_libraries(centaur PRIVATE LibArchive::LibArchive)
+target_link_libraries(centaur PRIVATE Curses::Curses)
 
 target_compile_options(centaur PRIVATE
   -Wall -Wextra -Wpedantic
-  $<$<CONFIG:Release>:-O2>
 )
 
 option(CENTAUR_NATIVE "Enable -march=native" OFF)
 if(CENTAUR_NATIVE)
   target_compile_options(centaur PRIVATE -march=native)
+endif()
+
+option(CENTAUR_O2 "Enable -O2" OFF)
+if (CENTAUR_O2)
+    target_compile_options(centaur PRIVATE -O2)
 endif()
 
 # Install stuff

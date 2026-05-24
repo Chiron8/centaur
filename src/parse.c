@@ -13,7 +13,6 @@ int get_latest(const char *path, char *latest, size_t size) {
 
     n = scandir(path, &namelist, NULL, versionsort);
     if (n < 0) {
-        printf("%s\n", path);
         perror("scandir");
         return -1;
     }
@@ -77,7 +76,7 @@ int read_execute(char file[], bool force, bool uninstall) {
     FILE *fptr = fopen(file, "r");
 
     if (fptr == NULL && force != true) {
-        printf("%s %s %s\n", "Unable to locate install file", file,". Perhaps you spelt it wrong?");
+        printf("\033[31m%s %s %s\n", "Unable to locate install file", file,". Perhaps you spelt it wrong?\033[0m");
         exit(1);
     }
 

@@ -57,7 +57,7 @@ Dependency *getDependencies(const char *file, const char *parent, Dependency *de
     int code = get_latest(packagePath, latest, sizeof(latest));
 
     if (code == -1) {
-        printf("%s\n", "Something went wrong with getting latest (deps.c)");
+        printf("%s\n", "\033[31mSomething went wrong with getting latest (deps.c)\033[0m");
         exit(1);
     }
 
@@ -67,7 +67,7 @@ Dependency *getDependencies(const char *file, const char *parent, Dependency *de
     FILE *fptr = fopen(path, "r");
 
     if (fptr == NULL) {
-        printf("%s %s\n", "Something went wrong with dependency resolution :( Could not open", path);
+        printf("\033[31m%s %s\033[0m\n", "Something went wrong with dependency resolution :( Could not open", path);
         exit(1);
     }
 
@@ -79,7 +79,7 @@ Dependency *getDependencies(const char *file, const char *parent, Dependency *de
     (*deps_size)++;
     Dependency *tmp_deps = realloc(deps, (*deps_size) * sizeof(Dependency));
     if (tmp_deps == NULL) {
-        perror("Failed to realloc memory");
+        perror("\033[31mFailed to realloc memory");
         exit(1);
     }
     deps = tmp_deps;
@@ -96,7 +96,7 @@ Dependency *getDependencies(const char *file, const char *parent, Dependency *de
             deps = getDependencies(line, file, deps, deps_size);
         }
         else {
-            printf("Skipping circular dep");
+            printf("\033[34mSkipping circular dep\033[0m");
         }
     }
     fclose(fptr);

@@ -24,7 +24,6 @@ int check_file(const char name[]) {
     FILE *install_fptr = fopen(installPath, "r");
 
     if (install_fptr == NULL) {
-        printf(installPath);
         perror("Could not open install file");
         return 1;
     }

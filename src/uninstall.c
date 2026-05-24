@@ -108,12 +108,12 @@ void dep_check(char file[], char package[]) {
         fclose(fptr);
         FILE *fptr = fopen(file, "r");
         char line[256];
-        printf("%s %s%s\n", "The following dependencies still rely on", package, ":");
+        printf("\033[31m%s %s%s\n", "The following dependencies still rely on", package, ":");
         while (fgets(line, 256, fptr) && line[0] != '=') {
             // print every dep
             printf(" - %s\n", line);
         }
-        printf("%s\n", "Please uninstall these dependencies first.");
+        printf("%s\n", "Please uninstall these dependencies first.\033[0m");
         exit(1);
     }
     fclose(fptr);
@@ -126,8 +126,7 @@ int uninstall(char package[], int force) {
     snprintf(installPath, sizeof(installPath), "%s/installed/%s%s", BASE_DIR, package, ".centaur");
 
     if (access(installPath, F_OK) != 0) {
-        printf("%s\n", installPath);
-        printf("%s %s %s\n", "Package", package, "not installed.");
+        printf("\033[31m%s %s %s\n", "Package", package, "not installed.\033[0m");
         exit(1);
     } 
 
@@ -143,7 +142,7 @@ int uninstall(char package[], int force) {
     remove_parent_from_installed_versions_of_dep("/etc/centaur/packages/installed", installPath, package);
 
 
-    printf("%s %s\n", package, "uninstalled!");
+    printf("\033[32m%s %s\033[0m\n", package, "uninstalled!");
 
     char worldPath[512];
     snprintf(worldPath, sizeof(worldPath), "%s%s%s", "/etc/centaur/packages/world/", package, ".centaur");

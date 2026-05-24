@@ -17,22 +17,29 @@
 void print_usage() {
     // error message
     printf("%s\n%s\n\n%s\n%s\n",
-           "ERROR: Please enter command and related arguments.",
-           "USAGE: centaur [COMMAND] [ARGUMENTS]",
+           "\033[31mERROR: Please enter command and related arguments.\033[0m",
+           "\033[34mUSAGE: centaur [COMMAND] [ARGUMENTS]",
            "see the wiki for more information:",
-           "https://github.com/Chiron8/centaur/wiki");
+           "https://github.com/Chiron8/centaur/wiki\033[0m");
 }
 
 int check_root() {
     // checks if program has root permissions
     if (geteuid() != 0) {
-        printf("%s\n", "Please run as root.");
+        printf("%s\n", "\033[31mPlease run as root.\033[0m");
         exit(1);
     }
     return 0;
 }
 
 int main(int argc, char *argv[]) {
+    // ANSI ESCAPE CODES: 31 - RED, 32 - GREEN, 33 - YELLOW, 34 - BLUE
+    // printf("\033[XXmthis is some text\033[0m")
+    if (argc < 2) {
+        print_usage();
+        return 1;
+    }
+
     // instruct var
     char instruction[50];
     strcpy(instruction, argv[1]);
@@ -85,9 +92,10 @@ int main(int argc, char *argv[]) {
         //array needs to be reversed so parent directory is installed first
         reverseDependencies(deps, total_deps);
 
-        printf("%s\n", "Installing packages:");
+
+        printf("%s\n", "\033[34mInstalling packages:\033[0m");
         for (size_t i = 0; i < total_deps; i++) {
-            printf("  - %s\n", deps[i].dep);
+            printf("\033[32m  - %s\033[0m\n", deps[i].dep);
         }
 
         if (argc > 3 && strcmp(argv[3], "pretend") == 0) {
@@ -99,15 +107,13 @@ int main(int argc, char *argv[]) {
             install(deps[i].dep, deps[i].parent);
         }
         freeDependencies(deps, total_deps);
+        return 0;
     }
-    else if (strcmp(instruction, "uninstall") == 0) {
+    if (strcmp(instruction, "uninstall") == 0) {
         // force uninstall if force keyword is passed
         int force = (argc == 4 && strcmp(argv[3], "force") == 0);
         uninstall(package, force);
     } 
-    else {
-        printf("%s %s %s\n", "ERROR: instruction", instruction, "does not exist!");
-        return 1;
-    }
-    return 0;
+    printf("\033[31m%s %s %s\033[0m\n", "ERROR: instruction", instruction, "does not exist!");
+    return 1;
 }

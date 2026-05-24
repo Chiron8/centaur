@@ -12,7 +12,7 @@ int list_iscentaur(char file[]) { // list() helper, checks if centaur file
 
 
 int list() {
-    printf("%s\n\n", "All packages currently installed are:");
+    printf("%s\n\n", "\033[34mAll packages currently installed are:\033[0m");
     // gracefully stolen from a tutorialspoint article :)
     DIR *dr;
     struct dirent *en;
@@ -22,9 +22,9 @@ int list() {
         also check if file is not .. or .*/
         if (list_iscentaur(en->d_name)) {
             size_t len = strlen(en->d_name);
-            printf("%.*s\n", (int)(len-8), en->d_name);
+            printf("\033[32m%.*s\033[0m\n", (int)(len-8), en->d_name);
         } 
     }
     closedir(dr);
-    return -1;
+    return 0;
 }

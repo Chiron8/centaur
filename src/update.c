@@ -73,7 +73,7 @@ int update() {
         exit(1);
     }
 
-    printf("%s\n", "Thinking...");
+    printf("%s\n", "\033[34mThinking...\033[0m");
 
     while ((de = readdir(dr)) != NULL) {
         if (strcmp(de->d_name, "..") != 0 && strcmp(de->d_name, ".") != 0 && needs_update(remove_version(de->d_name), de->d_name)) {
@@ -89,13 +89,13 @@ int update() {
         }
     }
     if (depSize == 0) {
-        printf("%s\n", "No packages to update!");
+        printf("%s\n", "\033[32mNo packages to update!\033[0m");
         return 0;
     }
 
-    printf("%s\n", "Updating packages:");
+    printf("%s\n", "\033[34mUpdating packages:\033[0m");
     for (int i = 0; i < depSize; i++) {
-        printf("- %s\n", dep[i]);
+        printf("\033[32m- %s\033[0m\n", dep[i]);
     }
 
     for (int i = 0; i < depSize; i++) {

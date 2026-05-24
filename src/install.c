@@ -46,7 +46,7 @@ int add_deps_to_file(char scriptFile[], char installFile[]) {
     FILE *install_ptr = fopen(installFile, "a");
 
     if (script_ptr == NULL || install_ptr == NULL) {
-        printf("%s\n", "Could not open file to add dependencies to parent install file.");
+        printf("%s\n", "\033[31mCould not open file to add dependencies to parent install file.\033[0m");
         exit(1);
     }
 
@@ -74,8 +74,8 @@ int install(char package[], char parent[]) {
     int code = get_latest(scriptDirectory, latest, sizeof(latest)); // latest holds the output not code
     if (code == -1) {
         // could not get latest version
-        printf("%s\n", "Something went wrong getting latest (install.c)");
-        printf("%s\n", scriptDirectory);
+        printf("%s\n", "\033[31mSomething went wrong getting latest (install.c)");
+        printf("%s\033[0m\n", scriptDirectory);
         exit(1);
     }
     snprintf(scriptPath, sizeof(scriptPath), "%s/%s", scriptDirectory, latest);
@@ -95,12 +95,12 @@ int install(char package[], char parent[]) {
 
     if (access(installPath, F_OK) == 0) {
         // NEED TO CHANGE LOGIC
-        printf("%s\n", "Package already installed");
+        printf("%s\n", "\033[31mPackage already installed\033[0m");
         return 1;
     } 
 
     if (read_execute(scriptPath, false, false) == 1) {
-        printf("%s %s%s\n", "ERROR: could not install package ", package, ", trying clean-up...");
+        printf("\033[31m%s %s%s\n", "ERROR: could not install package ", package, ", trying clean-up...\033[0m");
         uninstall(package, true);
     }
 
