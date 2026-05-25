@@ -35,91 +35,82 @@ int get_latest(const char *path, char *latest, size_t size) {
     return 0;
 }
 
-int concat_realloc(size_t currentLen, size_t lineLen, size_t *capacity, char **command) {
-    // check if command needs more mem
-    while (currentLen + lineLen + 8 > *capacity) {
-        size_t newCapacity = *capacity * 2;
-        char *temp = realloc(*command, newCapacity);
-        if (temp == NULL) { // out of memory
-            return 1;
-        }
-
-        *command = temp;
-        *capacity = newCapacity;
-    }
-    return 0;
-}
-
-int cat_command(bool newCommand, size_t *currentLen, size_t lineLen, size_t *capacity, char **command, char line[]) {
-    if (concat_realloc(*currentLen, lineLen, capacity, command) == 1) {
-        return 1;
-    }
-
-    if (newCommand == true) {
-        // if blank line, new command
-        strcat(*command, " && ");
-        strcat(*command, line);
-        *currentLen += lineLen+4;
-    } 
-    else {
-        // concatinate command + line
-        strcat(*command, " ");
-        strcat(*command, line);
-        *currentLen += lineLen+1;
-    } 
-    return 0;
-}
-
 int read_execute(char file[], bool force, bool uninstall) {
-
-    // load file
     FILE *fptr = fopen(file, "r");
 
     if (fptr == NULL && force != true) {
-        printf("\033[31m%s %s %s\n", "Unable to locate install file", file,". Perhaps you spelt it wrong?\033[0m");
+        printf("\033[31m%s %s %s\n",
+               "Unable to locate install file",
+               file,
+               ". Perhaps you spelt it wrong?\033[0m");
         exit(1);
     }
 
-    char line[256];
+    char *line = NULL;
+    size_t len = 0;
+
     size_t capacity = 512;
     size_t currentLen = 0;
     char *command = malloc(capacity);
-    command[0] = '\0';
-    bool prevBlank = false;
+    if (!command) {
+        fclose(fptr);
+        return 1;
+    }
 
+    command[0] = '\0';
+
+    // skip dependency block if needed
     if (!uninstall) {
-        while (fgets(line, sizeof(line), fptr) && line[0] != '=') {
-            // skip dependency declaration
-            continue;
+        while (getline(&line, &len, fptr) != -1 && line[0] != '=') {
+            // skip until '=' line
         }
     }
 
-    while (fgets(line, sizeof(line), fptr)) { // read lines one at a time
-        line[strcspn(line, "\n")] = '\0'; // get rid of new line char
+    bool first = true;
+
+    while (getline(&line, &len, fptr) != -1) {
+
+        // strip newline
+        line[strcspn(line, "\n")] = '\0';
+
         size_t lineLen = strlen(line);
 
         if (lineLen == 0) {
-            // check if blank line
-            prevBlank = true;
             continue;
         }
 
         if (line[0] == '#') {
-            // ignore comments
             continue;
         }
 
-        // add line to big command thing
-        cat_command(prevBlank, &currentLen, lineLen, &capacity, &command, line);
-        prevBlank = false;
+        // resize if needed
+        while (currentLen + lineLen + 5 >= capacity) {
+            capacity *= 2;
+            char *tmp = realloc(command, capacity);
+            if (!tmp) {
+                free(command);
+                free(line);
+                fclose(fptr);
+                return 1;
+            }
+            command = tmp;
+        }
+
+        if (!first) {
+            strcat(command, " && ");
+            currentLen += 4;
+        }
+
+        strcat(command, line);
+        currentLen += lineLen;
+        first = false;
     }
 
-    if (system(command) > 0) {
-        free(command);
-        fclose(fptr);
-        return 1;
-    }
-    free(command);
+    free(line);
     fclose(fptr);
-    return 0;
+
+    int result = system(command);
+
+    free(command);
+    return (result > 0);
 }

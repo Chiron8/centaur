@@ -1,2 +1,2 @@
-=== ADD DEPENDENCIES ABOVE THIS LINE ===
-echo "Hello this is a new version of example"
+=
+echo "hello"

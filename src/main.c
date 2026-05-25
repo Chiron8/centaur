@@ -113,6 +113,7 @@ int main(int argc, char *argv[]) {
         // force uninstall if force keyword is passed
         int force = (argc == 4 && strcmp(argv[3], "force") == 0);
         uninstall(package, force);
+        return 0;
     } 
     printf("\033[31m%s %s %s\033[0m\n", "ERROR: instruction", instruction, "does not exist!");
     return 1;

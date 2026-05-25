@@ -4,15 +4,11 @@ echo "I am doing a thing"
 # don't do this
 
 echo "I will be testing multiline stuff"
-
-echo "I finished
-testing"
+echo "I finished testing"
 
 export HI=hello
 echo $HI
 
 echo "did it work?"
-
 echo 'echo "This is going into add some random stuff in the uninstall file!"' | sudo tee /etc/centaur/packages/uninstall/example-0.1.centaur
-
 echo "finished!"
