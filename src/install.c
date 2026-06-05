@@ -63,7 +63,7 @@ int add_deps_to_file(char scriptFile[], char installFile[]) {
     return 0;
 }
 
-int install(char package[], char parent[]) {
+int install(char package[], char parent[], int check_hashes) {
     // package = something-1.2.3.centaur
     char scriptDirectory[256]; // package directory (not specific version)
     snprintf(scriptDirectory, sizeof(scriptDirectory), "%s/scripts/%s", BASE_DIR, package);
@@ -80,14 +80,16 @@ int install(char package[], char parent[]) {
     }
     snprintf(scriptPath, sizeof(scriptPath), "%s/%s", scriptDirectory, latest);
 
-    // hash stuff here
-    char localHash[512];
-    snprintf(localHash, sizeof(localHash), "%s", calculate_hash(scriptPath));
-    char cloudHash[512];
-    snprintf(cloudHash, sizeof(cloudHash), "%s", get_cloud_hash(latest, package));
-    if (strcmp(localHash, cloudHash) != 0) {
-        perror("Hashes for your install file DO NOT MATCH with the known file!!!");
-        exit(1);
+    if (check_hashes == 1) {
+        // hash stuff here
+        char localHash[512];
+        snprintf(localHash, sizeof(localHash), "%s", calculate_hash(scriptPath));
+        char cloudHash[512];
+        snprintf(cloudHash, sizeof(cloudHash), "%s", get_cloud_hash(latest, package));
+        if (strcmp(localHash, cloudHash) != 0) {
+            perror("Hashes for your install file DO NOT MATCH with the known file!!!");
+            exit(1);
+        }
     }
 
     char installPath[200];

@@ -1,2 +1,5 @@
-=
-echo "hello"
+[meta]
+dependencies = ""
+[/meta]
+
+echo "hello!"
