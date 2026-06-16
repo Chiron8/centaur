@@ -93,7 +93,7 @@ int install(char package[], char parent[], int check_hashes) {
 
     char line[256];
     bool inMeta = false;
-    char createBlankUninstallFile[6];
+    char createBlankUninstallFile[6] = "no";
 
     while (fgets(line, sizeof(line), fptr)) {
         if (strncmp(line, "[meta]", 6) == 0) {
@@ -134,12 +134,12 @@ int install(char package[], char parent[], int check_hashes) {
         }
     }
 
-    fclose(fptr);
-
     if (strcmp(createBlankUninstallFile, "yes") == 0) {
         FILE *fptr = fopen(uninstallFile, "w");
         fclose(fptr);
     }
+
+    fclose(fptr);
 
     if (check_hashes == 1) {
         // hash stuff here
@@ -191,6 +191,23 @@ int install(char package[], char parent[], int check_hashes) {
 
         fprintf(install_fptr, "%s\n", parentLatest);
         fclose(install_fptr);
+    }
+
+    if (strcmp(createBlankUninstallFile, "yes") == 0) {
+        FILE *fptr = fopen(uninstallFile, "w");
+        fclose(fptr);
+    }
+    else {
+        FILE *fptr = fopen(scriptPath, "r");
+        while (getline(line, sizeof(line), fptr) != -1 && strcmp(line, "[uninstall]") != 0) {
+            // skip until [uninstall]
+        }
+        FILE *uninstall_fptr = fopen(uninstallFile, "w");
+        while (getline(line, sizeof(line), fptr) != -1 && strcmp(line, "[/uninstall]") != 0) {
+            fprintf(uninstall_fptr, line);
+
+        fclose(fptr);
+        fclose(uninstall_fptr);
     }
      
     add_deps_to_file(scriptPath, installPath);

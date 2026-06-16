@@ -61,26 +61,24 @@ int read_execute(char file[], bool force, bool uninstall) {
 
     // skip dependency block if needed
     if (!uninstall) {
-        while (getline(&line, &len, fptr) != -1 && strcmp(line, "[/meta]") != 0) {
-            // skip until [/meta] line
+        while (getline(&line, &len, fptr) != -1 && strcmp(line, "[install]") != 0) {
+            // skip until [install] line
         }
     }
 
     bool first = true;
 
     while (getline(&line, &len, fptr) != -1) {
-
         // strip newline
         line[strcspn(line, "\n")] = '\0';
-
         size_t lineLen = strlen(line);
 
-        if (lineLen == 0) {
+        if (lineLen == 0 || line[0] == '#') {
             continue;
         }
 
-        if (line[0] == '#') {
-            continue;
+        if (!uninstall && strcmp(line, "[/install]") == 0) {
+            break;
         }
 
         // resize if needed
@@ -109,6 +107,7 @@ int read_execute(char file[], bool force, bool uninstall) {
     free(line);
     fclose(fptr);
 
+    while ()
     int result = system(command);
 
     free(command);
