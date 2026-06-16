@@ -107,7 +107,6 @@ int read_execute(char file[], bool force, bool uninstall) {
     free(line);
     fclose(fptr);
 
-    while ()
     int result = system(command);
 
     free(command);
