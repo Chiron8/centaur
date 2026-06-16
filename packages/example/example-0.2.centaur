@@ -1,5 +1,6 @@
 [meta]
 dependencies = ""
+create_blank_uninstall_file = "no"
 [/meta]
 
 echo "hello!"

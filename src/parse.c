@@ -61,8 +61,8 @@ int read_execute(char file[], bool force, bool uninstall) {
 
     // skip dependency block if needed
     if (!uninstall) {
-        while (getline(&line, &len, fptr) != -1 && line[0] != '=') {
-            // skip until '=' line
+        while (getline(&line, &len, fptr) != -1 && strcmp(line, "[/meta]") != 0) {
+            // skip until [/meta] line
         }
     }
 

@@ -80,6 +80,67 @@ int install(char package[], char parent[], int check_hashes) {
     }
     snprintf(scriptPath, sizeof(scriptPath), "%s/%s", scriptDirectory, latest);
 
+    char uninstallFile[256];
+    snprintf(uninstallFile, sizeof(uninstallFile), "%s/uninstall/%s", BASE_DIR, latest);
+
+    FILE *fptr = fopen(scriptPath, "r");
+
+    if (fptr == NULL) {
+        perror("Could not open scriptPath");
+        fclose(fptr);
+        exit(1);
+    }
+
+    char line[256];
+    bool inMeta = false;
+    char createBlankUninstallFile[6];
+
+    while (fgets(line, sizeof(line), fptr)) {
+        if (strncmp(line, "[meta]", 6) == 0) {
+            inMeta = true;
+            continue;
+        }
+
+        if (strncmp(line, "[/meta]", 7) == 0) {
+            break;
+        }
+
+        if (!inMeta) {
+            continue;
+        }
+
+        if (strncmp(line, "create_blank_uninstall_file", 27) == 0) {
+            char *eq = strchr(line, '=');
+            if (!eq) {
+                continue;
+            }
+
+            eq++;
+            while (*eq == ' ') {
+                eq++;
+            }
+
+            char *start = eq;
+            if (*start == '"') {
+                start++;
+            }
+
+            char *end = start + strlen(start) - 1;
+            if (end >= start && *end == '"') {
+                *end = '\0';
+            }
+
+            strncpy(createBlankUninstallFile, start, sizeof(createBlankUninstallFile) -1);
+        }
+    }
+
+    fclose(fptr);
+
+    if (strcmp(createBlankUninstallFile, "yes") == 0) {
+        FILE *fptr = fopen(uninstallFile, "w");
+        fclose(fptr);
+    }
+
     if (check_hashes == 1) {
         // hash stuff here
         char localHash[512];
@@ -106,17 +167,17 @@ int install(char package[], char parent[], int check_hashes) {
         uninstall(package, true);
     }
 
-    FILE *fptr = fopen(installPath, "w");
+    FILE *install_fptr = fopen(installPath, "w");
 
     if (parent == NULL) {
         char world_file[512];
         snprintf(world_file, sizeof(world_file), "%s%s", "/etc/centaur/packages/world/", latest);
-        FILE *fptr = fopen(world_file, "w");
-        fclose(fptr);
+        FILE *world_fptr = fopen(world_file, "w");
+        fclose(world_fptr);
     }
 
     // is a dep of blah
-    if (fptr && parent != NULL) {
+    if (install_fptr && parent != NULL) {
         char parentLatest[100];
         char parentDirectory[300];
 
@@ -128,8 +189,8 @@ int install(char package[], char parent[], int check_hashes) {
             exit(1);
         }
 
-        fprintf(fptr, "%s\n", parentLatest);
-        fclose(fptr);
+        fprintf(install_fptr, "%s\n", parentLatest);
+        fclose(install_fptr);
     }
      
     add_deps_to_file(scriptPath, installPath);
