@@ -199,11 +199,11 @@ int install(char package[], char parent[], int check_hashes) {
     }
     else {
         FILE *fptr = fopen(scriptPath, "r");
-        while (fgets(line, sizeof(line), fptr) && strcmp(line, "[uninstall]") != 0) {
+        while (fgets(line, sizeof(line), fptr) && strcmp(line, "[uninstall]\n") != 0) {
             // skip until [uninstall]
         }
         FILE *uninstall_fptr = fopen(uninstallFile, "w");
-        while (fgets(line, sizeof(line), fptr) && strcmp(line, "[/uninstall]") != 0) {
+        while (fgets(line, sizeof(line), fptr) && strcmp(line, "[/uninstall]\n") != 0) {
             fprintf(uninstall_fptr, line);
         }
         fclose(fptr);
