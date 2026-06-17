@@ -46,8 +46,7 @@ int read_execute(char file[], bool force, bool uninstall) {
         exit(1);
     }
 
-    char *line = NULL;
-    size_t len = 0;
+    char line[256];
 
     size_t capacity = 512;
     size_t currentLen = 0;
@@ -59,53 +58,53 @@ int read_execute(char file[], bool force, bool uninstall) {
 
     command[0] = '\0';
 
-    // skip dependency block if needed
     if (!uninstall) {
-        while (getline(&line, &len, fptr) != -1 && strcmp(line, "[install]") != 0) {
-            // skip until [install] line
-        }
-    }
+        while (fgets(line, sizeof(line), fptr) && strcmp(line, "[install]\n") != 0) {
+            // skip until [install]
+        } 
 
-    bool first = true;
+        bool first = true;
 
-    while (getline(&line, &len, fptr) != -1) {
-        // strip newline
-        line[strcspn(line, "\n")] = '\0';
-        size_t lineLen = strlen(line);
+        while (fgets(line, sizeof(line), fptr) && strcmp(line, "[/install]\n") != 0) {
+            // strip newline
+            line[strcspn(line, "\n")] = '\0';
+            size_t lineLen = strlen(line);
 
-        if (lineLen == 0 || line[0] == '#') {
-            continue;
-        }
-
-        if (!uninstall && strcmp(line, "[/install]") == 0) {
-            break;
-        }
-
-        // resize if needed
-        while (currentLen + lineLen + 5 >= capacity) {
-            capacity *= 2;
-            char *tmp = realloc(command, capacity);
-            if (!tmp) {
-                free(command);
-                free(line);
-                fclose(fptr);
-                return 1;
+            if (lineLen == 0 || line[0] == '#') {
+                continue;
             }
-            command = tmp;
-        }
 
-        if (!first) {
-            strcat(command, " && ");
-            currentLen += 4;
-        }
+            // resize if needed
+            while (currentLen + lineLen + 5 >= capacity) {
+                capacity *= 2;
+                char *tmp = realloc(command, capacity);
+                if (!tmp) {
+                    free(command);
+                    fclose(fptr);
+                    return 1;
+                }
+                command = tmp;
+            }
 
-        strcat(command, line);
-        currentLen += lineLen;
-        first = false;
+            if (!first) {
+                strcat(command, " && ");
+                currentLen += 4;
+            }
+
+            strcat(command, line);
+            currentLen += lineLen;
+            first = false;
+        }
+    }
+    else {
+        // do stuff above
+        // make function next time...
+        // im watching england v croatia first
     }
 
-    free(line);
     fclose(fptr);
+
+    printf("%s\n", command);
 
     int result = system(command);
 
