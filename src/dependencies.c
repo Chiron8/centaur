@@ -58,6 +58,7 @@ Dependency *getDependencies(const char *file, const char *parent, Dependency *de
 
     if (code == -1) {
         printf("%s\n", "\033[31mSomething went wrong with getting latest (deps.c)\033[0m");
+        perror(packagePath);
         exit(1);
     }
 

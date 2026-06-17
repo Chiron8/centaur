@@ -91,6 +91,11 @@ int main(int argc, char *argv[]) {
 
     // why can't c do switch case for strings >:(
     if (strcmp(instruction, "install") == 0) {
+        if (strcmp(package, "HASHES") == 0) {
+            perror("son you can't install the HASHES directory 🥀✌️");
+            exit(1);
+        }
+
         if (argc == 4 && strcmp(argv[3], "no_hash_check") == 0) {
             check_hash = 0;
         }

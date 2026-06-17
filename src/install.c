@@ -169,12 +169,12 @@ int install(char package[], char parent[], int check_hashes) {
 
     FILE *install_fptr = fopen(installPath, "w");
 
-    if (parent == NULL) {
+    /*if (parent == NULL) {
         char world_file[512];
         snprintf(world_file, sizeof(world_file), "%s%s", "/etc/centaur/packages/world/", latest);
         FILE *world_fptr = fopen(world_file, "w");
         fclose(world_fptr);
-    }
+    }*/
 
     // is a dep of blah
     if (install_fptr && parent != NULL) {
