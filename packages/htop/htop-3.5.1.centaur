@@ -1,7 +1,7 @@
 [meta]
 name = "htop"
 version = "3.5.1"
-dependencies = ""
+dependencies = "ncurses"
 [/meta]
 
 [install]

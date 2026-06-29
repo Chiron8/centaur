@@ -1,0 +1,25 @@
+[meta]
+name = "man-pages"
+version = "6.17"
+dependencies = ""
+[/meta]
+
+[install]
+echo "Downloading tarball..."
+wget https://www.kernel.org/pub/linux/docs/man-pages/man-pages-6.17.tar.xz -O /tmp/centaur/man-pages.tar.xz
+tar -xf /tmp/centaur/man-pages.tar.xz -C /tmp/centaur
+cd /tmp/centaur/man-pages-6.17
+
+echo "configuring and compiling..."
+rm -v man3/crypt*
+make -R GIT=false prefix=/usr install
+
+echo "tidying up..."
+cd ../
+rm man-pages.tar.xz
+rm -rf man-pages-6.17
+echo "Finished!"
+[/install]
+
+[uninstall]
+
