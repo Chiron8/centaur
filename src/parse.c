@@ -40,7 +40,7 @@ int read_execute(char file[], bool force, bool uninstall) {
 
     if (fptr == NULL && force != true) {
         printf("\033[31m%s %s %s\n",
-               "Unable to locate install file",
+               "Unable to locate file",
                file,
                ". Perhaps you spelt it wrong?\033[0m");
         exit(1);

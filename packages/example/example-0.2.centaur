@@ -5,4 +5,4 @@ create_blank_uninstall_file = "yes"
 
 [install]
 echo "hello!"
-[/uninstall]
+[/install]
