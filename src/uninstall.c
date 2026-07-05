@@ -113,7 +113,7 @@ void dep_check(char file[], char package[]) {
             // print every dep
             printf(" - %s\n", line);
         }
-        printf("%s\n", "Please uninstall these dependencies first.\033[0m");
+        printf("%s\n", "Please uninstall these parents first.\033[0m");
         exit(1);
     }
     fclose(fptr);
@@ -128,14 +128,38 @@ int uninstall(char package[], int force) {
     if (access(installPath, F_OK) != 0) {
         printf("\033[31m%s %s %s\n", "Package", package, "not installed.\033[0m");
         exit(1);
-    } 
-
-    if (force != 1) {
-        dep_check(installPath, package);
     }
 
     char uninstallPath[200];
     snprintf(uninstallPath, sizeof(uninstallPath), "%s/uninstall/%s%s", BASE_DIR, package, ".centaur");
+
+
+    char worldPath[512];
+    snprintf(worldPath, sizeof(worldPath), "%s%s%s", "/etc/centaur/packages/world/", package, ".centaur");
+
+    if (force == 1) {
+        remove_parent_from_installed_versions_of_dep("/etc/centaur/packages/installed", installPath, package);
+
+        if (access(worldPath, F_OK) == 0) {
+            if (remove(worldPath)) {
+                perror("Error removing world files!");
+            }
+        }
+
+        if (remove(installPath)) {
+            printf("%s\n", "Error removing install file. Something is definitely really wrong...");
+        }
+        if (remove(uninstallPath)) {
+            printf("%s\n", "Error removing uninstall file, but I'll let it slide ;P");
+        }
+
+        printf("\033[32m%s %s\033[0m\n", package, "uninstalled!");
+        printf("%s\n", "FILES RELATED TO PACKAGE WILL PROBABLY STILL EXIST!");
+
+        return 0;
+    }
+
+    dep_check(installPath, package);
 
     read_execute(uninstallPath, force, true);
     
@@ -143,9 +167,6 @@ int uninstall(char package[], int force) {
 
 
     printf("\033[32m%s %s\033[0m\n", package, "uninstalled!");
-
-    char worldPath[512];
-    snprintf(worldPath, sizeof(worldPath), "%s%s%s", "/etc/centaur/packages/world/", package, ".centaur");
 
     if (access(worldPath, F_OK) == 0) {
         if (remove(worldPath)) {

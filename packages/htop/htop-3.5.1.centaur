@@ -1,36 +1,31 @@
-=== ADD DEPENDENCIES ABOVE THIS LINE ===
+[meta]
+name = "htop"
+version = "3.5.1"
+dependencies = "ncurses"
+[/meta]
+
+[install]
 echo "Downloading tarball..."
-
 wget https://github.com/htop-dev/htop/archive/refs/tags/3.5.1.tar.gz -O /tmp/centaur/htop.tar.gz
-
 tar -xf /tmp/centaur/htop.tar.gz -C /tmp/centaur
-
 cd /tmp/centaur/htop-3.5.1/
 
 echo "configuring and compiling..."
-
 ./autogen.sh
-
 ./configure
-
 make
-
 make install
 
 echo "tidying up..."
-
 cd ../
-
 rm -rf htop-3.5.1
-
 rm htop.tar.gz
-
-echo "installing uninstall scripts..."
-
-export UNINSTALL="/etc/centaur/packages/uninstall/htop-3.5.1.centaur"
-
-echo -e "rm -rf ~/.config/htop\n" | tee -a $UNINSTALL
-
-echo -e "rm /usr/local/bin/htop\n" | tee -a $UNINSTALL
-
 echo "Finished!"
+[/install]
+
+[uninstall]
+echo "Uninstalling..."
+rm -rf ~/.config/htop
+rm /usr/local/bin/htop
+echo "Finished!"
+[/uninstall]

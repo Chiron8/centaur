@@ -1,2 +1,8 @@
-=
-echo "hello"
+[meta]
+dependencies = ""
+create_blank_uninstall_file = "yes"
+[/meta]
+
+[install]
+echo "hello!"
+[/install]

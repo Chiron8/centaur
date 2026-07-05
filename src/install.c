@@ -7,6 +7,7 @@
 #include "parse.h"
 #include "uninstall.h"
 #include "curl_hash.h"
+#include "dependencies.h"
 
 #define BASE_DIR "/etc/centaur/packages"
 
@@ -40,30 +41,42 @@ char* get_cloud_hash(char latest[], char noversion[]) {
     return result;
 }
 
-int add_deps_to_file(char scriptFile[], char installFile[]) {
-    char line[150];
-    FILE *script_ptr = fopen(scriptFile, "r");
-    FILE *install_ptr = fopen(installFile, "a");
+int add_deps_to_file(char package[], char installFile[]) {
+    Dependency *deps = NULL;
+    size_t deps_size = 0;
 
-    if (script_ptr == NULL || install_ptr == NULL) {
-        printf("%s\n", "\033[31mCould not open file to add dependencies to parent install file.\033[0m");
+    deps = getDependencies(package, NULL, deps, &deps_size);
+
+    FILE *install_ptr = fopen(installFile, "a");
+    if (install_ptr == NULL) {
+        printf("\033[31mCould not open file to add dependencies to parent install file.\033[0m\n");
+        for (size_t i = 0; i < deps_size; i++) {
+            free(deps[i].dep);
+            free(deps[i].parent);
+        }
+        free(deps);
         exit(1);
     }
 
-    fprintf(install_ptr, "%s\n", "=== STUFF ABOVE = PARENT PACKAGES, STUFF BELOW = DEPENDENCIES ===");
-
-    while (fgets(line, sizeof(line), script_ptr)) {
-        if (line[0] == '=') {
-            break;
+    fprintf(install_ptr, "%s\n", "=== STUFF ABOVE = PARENT PACKAGES, STUFF BELOW = DEPENDENCIES");
+    for (size_t i = 0; i < deps_size; i++) {
+        if (deps[i].parent != NULL && strcmp(deps[i].parent, package) == 0) {
+            printf("%s\n", deps[i].parent);
+            fprintf(install_ptr, "%s\n", deps[i].dep);
         }
-        fprintf(install_ptr, "%s\n", line);
     }
-    fclose(script_ptr);
+
     fclose(install_ptr);
+
+    for (size_t i = 0; i < deps_size; i++) {
+        free(deps[i].dep);
+        free(deps[i].parent);
+    }
+    free(deps);
     return 0;
 }
 
-int install(char package[], char parent[]) {
+int install(char package[], char parent[], int check_hashes) {
     // package = something-1.2.3.centaur
     char scriptDirectory[256]; // package directory (not specific version)
     snprintf(scriptDirectory, sizeof(scriptDirectory), "%s/scripts/%s", BASE_DIR, package);
@@ -80,14 +93,77 @@ int install(char package[], char parent[]) {
     }
     snprintf(scriptPath, sizeof(scriptPath), "%s/%s", scriptDirectory, latest);
 
-    // hash stuff here
-    char localHash[512];
-    snprintf(localHash, sizeof(localHash), "%s", calculate_hash(scriptPath));
-    char cloudHash[512];
-    snprintf(cloudHash, sizeof(cloudHash), "%s", get_cloud_hash(latest, package));
-    if (strcmp(localHash, cloudHash) != 0) {
-        perror("Hashes for your install file DO NOT MATCH with the known file!!!");
+    char uninstallFile[256];
+    snprintf(uninstallFile, sizeof(uninstallFile), "%s/uninstall/%s", BASE_DIR, latest);
+
+    FILE *fptr = fopen(scriptPath, "r");
+
+    if (fptr == NULL) {
+        perror("Could not open scriptPath");
+        fclose(fptr);
         exit(1);
+    }
+
+    char line[256];
+    bool inMeta = false;
+    char createBlankUninstallFile[6] = "no";
+
+    while (fgets(line, sizeof(line), fptr)) {
+        if (strncmp(line, "[meta]", 6) == 0) {
+            inMeta = true;
+            continue;
+        }
+
+        if (strncmp(line, "[/meta]", 7) == 0) {
+            break;
+        }
+
+        if (!inMeta) {
+            continue;
+        }
+
+        if (strncmp(line, "create_blank_uninstall_file", 27) == 0) {
+            char *eq = strchr(line, '=');
+            if (!eq) {
+                continue;
+            }
+
+            eq++;
+            while (*eq == ' ') {
+                eq++;
+            }
+
+            char *start = eq;
+            if (*start == '"') {
+                start++;
+            }
+
+            char *end = start + strlen(start) - 1;
+            if (end >= start && *end == '"') {
+                *end = '\0';
+            }
+
+            strncpy(createBlankUninstallFile, start, sizeof(createBlankUninstallFile) -1);
+        }
+    }
+
+    if (strcmp(createBlankUninstallFile, "yes") == 0) {
+        FILE *fptr = fopen(uninstallFile, "w");
+        fclose(fptr);
+    }
+
+    fclose(fptr);
+
+    if (check_hashes == 1) {
+        // hash stuff here
+        char localHash[512];
+        snprintf(localHash, sizeof(localHash), "%s", calculate_hash(scriptPath));
+        char cloudHash[512];
+        snprintf(cloudHash, sizeof(cloudHash), "%s", get_cloud_hash(latest, package));
+        if (strcmp(localHash, cloudHash) != 0) {
+            perror("Hashes for your install file DO NOT MATCH with the known file!!!");
+            exit(1);
+        }
     }
 
     char installPath[200];
@@ -104,17 +180,17 @@ int install(char package[], char parent[]) {
         uninstall(package, true);
     }
 
-    FILE *fptr = fopen(installPath, "w");
+    FILE *install_fptr = fopen(installPath, "w");
 
-    if (parent == NULL) {
+    /*if (parent == NULL) {
         char world_file[512];
         snprintf(world_file, sizeof(world_file), "%s%s", "/etc/centaur/packages/world/", latest);
-        FILE *fptr = fopen(world_file, "w");
-        fclose(fptr);
-    }
+        FILE *world_fptr = fopen(world_file, "w");
+        fclose(world_fptr);
+    }*/
 
     // is a dep of blah
-    if (fptr && parent != NULL) {
+    if (install_fptr && parent != NULL) {
         char parentLatest[100];
         char parentDirectory[300];
 
@@ -126,10 +202,27 @@ int install(char package[], char parent[]) {
             exit(1);
         }
 
-        fprintf(fptr, "%s\n", parentLatest);
+        fprintf(install_fptr, "%s\n", parentLatest);
+        fclose(install_fptr);
+    }
+
+    if (strcmp(createBlankUninstallFile, "yes") == 0) {
+        FILE *fptr = fopen(uninstallFile, "w");
         fclose(fptr);
     }
+    else {
+        FILE *fptr = fopen(scriptPath, "r");
+        while (fgets(line, sizeof(line), fptr) && strcmp(line, "[uninstall]\n") != 0) {
+            // skip until [uninstall]
+        }
+        FILE *uninstall_fptr = fopen(uninstallFile, "w");
+        while (fgets(line, sizeof(line), fptr) && strcmp(line, "[/uninstall]\n") != 0) {
+            fprintf(uninstall_fptr, line);
+        }
+        fclose(fptr);
+        fclose(uninstall_fptr);
+    }
      
-    add_deps_to_file(scriptPath, installPath);
+    add_deps_to_file(package, installPath);
     return 0;
 }

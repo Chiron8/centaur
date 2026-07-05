@@ -47,7 +47,7 @@ int add_to_array(char ***arr, int *arrCap, int *arrSize, char* element) {
     return 0;
 }
 
-int update() {
+int update(int checkHashes) {
     // Source - https://stackoverflow.com/a/7876756
 // Posted by Frerich Raabe, modified by community. See post 'Timeline' for change history
 // Retrieved 2026-05-24, License - CC BY-SA 4.0
@@ -99,7 +99,7 @@ int update() {
     }
 
     for (int i = 0; i < depSize; i++) {
-        install(dep[i], parent[i]);
+        install(dep[i], parent[i], checkHashes);
     }
 
     for (int i = 0; i < depSize; i++) {

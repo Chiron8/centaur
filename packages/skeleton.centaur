@@ -1,5 +1,13 @@
-# REMOVE this line and add dependencies here
-=== ADD DEPENDENCIES ABOVE THIS LINE ===
-# this is a skeleton file
-# put bash commands below...
-echo "hello world!"
+[meta]
+name = ""
+version = ""
+dependencies = ""
+[/meta]
+
+[install]
+# add your install script here
+[/install]
+
+[uninstall]
+# add your uninstall script here
+[/uninstall]

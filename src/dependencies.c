@@ -50,7 +50,9 @@ Dependency *getDependencies(const char *file, const char *parent, Dependency *de
     char packagePath[200];
     char latest[150];
 
+
     snprintf(packagePath, sizeof(packagePath), "/etc/centaur/packages/scripts/%s", file);
+    printf("%s\n", packagePath);
 
     // get latest version of dep
     // this is going to break when we need specific version :)
@@ -58,6 +60,7 @@ Dependency *getDependencies(const char *file, const char *parent, Dependency *de
 
     if (code == -1) {
         printf("%s\n", "\033[31mSomething went wrong with getting latest (deps.c)\033[0m");
+        perror(packagePath);
         exit(1);
     }
 
@@ -86,17 +89,58 @@ Dependency *getDependencies(const char *file, const char *parent, Dependency *de
     deps[*deps_size - 1].dep = strdup(file);
     deps[*deps_size -1].parent = parent ? strdup(parent) : NULL;
 
-    while(fgets(line, sizeof(line), fptr) && line[0] != '=') {
-        if (line[0] == '#' || line[0] == '\n') {
+    bool inMeta = false;
+    char depsLine[512] = {0};
+
+    while (fgets(line, sizeof(line), fptr)) {
+        if (strncmp(line, "[meta]", 6) == 0) {
+            inMeta = true;
             continue;
         }
-        line[strcspn(line, "\n")] = '\0';
-        if (!alreadyAdded(line, deps, *deps_size)) {
-            // recursion RAAHHH
-            deps = getDependencies(line, file, deps, deps_size);
+
+        if (strncmp(line, "[/meta]", 7) == 0) {
+            break;
         }
-        else {
-            printf("\033[34mSkipping circular dep\033[0m");
+
+        if (!inMeta) {
+            continue;
+        }
+
+        line[strcspn(line, "\n")] = '\0';
+
+        if (strncmp(line, "dependencies", 12) == 0) {
+            char *eq = strchr(line, '=');
+            if (!eq) {
+                continue;
+            }
+            eq++;
+            while (*eq == ' ' || *eq == '\t') eq++;
+
+            char *start = eq;
+            if (*start == '"') {
+                start++;
+            }
+
+            char *end = start + strlen(start) - 1;
+            if (*end == '"') {
+                *end = '\0';
+            }
+            strncpy(depsLine, start, sizeof(depsLine) - 1);
+
+            char *savePtr;
+            char *token = strtok_r(depsLine, " ", &savePtr);
+
+            while (token) {
+                if (!alreadyAdded(token, deps, *deps_size)) {
+                    // recursion RAAHHH
+                    deps = getDependencies(token, file, deps, deps_size);
+                }
+                else {
+                    printf("\033[34mSkipping circular dep\033[0m");
+                }
+            
+                token = strtok_r(NULL, " ", &savePtr);
+            }
         }
     }
     fclose(fptr);

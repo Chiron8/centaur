@@ -1,10 +1,21 @@
-=== ADD DEPS ABOVE THIS LINE ===
-echo "cloning repo!"
+[meta]
+name = "quicksplat"
+version = "9999"
+dependencies = ""
+[/meta]
 
+[install]
+echo "cloning repo!"
 git clone https://github.com/abhinow03/quicksplat.git ~/quicksplat
 
 echo "running script!"
-
 bash ~/quicksplat/install/setup_linux.sh
 
+echo "quicksplat directory located at ~/quicksplat"
 echo "Finished!"
+[/install]
+
+[uninstall]
+rm -r ~/quicksplat
+rm /usr/bin/quicksplat
+[/uninstall]

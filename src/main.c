@@ -40,6 +40,8 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
+    int check_hash;
+
     // instruct var
     char instruction[50];
     strcpy(instruction, argv[1]);
@@ -70,7 +72,13 @@ int main(int argc, char *argv[]) {
     }
 
     if (strcmp(instruction, "update") == 0) {
-        update();
+        if (argc == 3 && strcmp(argv[2], "no_hash_check") == 0) {
+            check_hash = 0;
+        }
+        else {
+            check_hash = 1;
+        }
+        update(check_hash);
         return 0;
     }
 
@@ -83,6 +91,17 @@ int main(int argc, char *argv[]) {
 
     // why can't c do switch case for strings >:(
     if (strcmp(instruction, "install") == 0) {
+        if (strcmp(package, "HASHES") == 0) {
+            perror("son you can't install the HASHES directory 🥀✌️");
+            exit(1);
+        }
+
+        if (argc == 4 && strcmp(argv[3], "no_hash_check") == 0) {
+            check_hash = 0;
+        }
+        else {
+            check_hash = 1;
+        }
         // get all dependencies...
         Dependency *deps = NULL;
         size_t total_deps = 0;
@@ -104,7 +123,7 @@ int main(int argc, char *argv[]) {
 
         for (size_t i = 0; i < total_deps; i++) {
             // check if package already exists
-            install(deps[i].dep, deps[i].parent);
+            install(deps[i].dep, deps[i].parent, check_hash);
         }
         freeDependencies(deps, total_deps);
         return 0;

@@ -1,35 +1,31 @@
-example
-=== ADD DEPENDENCIES ABOVE THIS LINE ===
-echo "Downloading..."
+[meta]
+name = "writedoc"
+version = "2.3-p1"
+dependencies = "example"
+[/meta]
 
+[install]
+echo "Downloading..."
 wget https://github.com/Chiron8/writedoc/archive/refs/tags/v2.3-p1.tar.gz -O /tmp/centaur/writedoc.tar.gz
 
 echo "Installing..."
-
 tar -xf /tmp/centaur/writedoc.tar.gz -C /tmp/centaur
-
 cd /tmp/centaur/writedoc-2.3-p1/
-
 ./install.sh
 
 echo "Finished installing! "
-
 echo "Tidying Files..."
-
 cd ../
-
 rm writedoc.tar.gz
-
 rm -r writedoc-2.3-p1/
 
-echo "Adding uninstall scripts..."
-
-export UNINSTALL="/etc/centaur/packages/uninstall/writedoc-2.3-p1.centaur"
-
-echo -e "rm /usr/local/bin/writedoc\n" | tee -a $UNINSTALL
-
-echo -e "rm /usr/local/share/man/man1/writedoc.1\n" | tee -a $UNINSTALL
-
-echo -e "rm -r /usr/local/share/writedoc\n" | tee -a $UNINSTALL
-
 echo "Finished!"
+[/install]
+
+[uninstall]
+echo "Uninstalling..."
+rm /usr/local/bin/writedoc
+rm /usr/local/share/man/man1/writedoc.1
+rm -r /usr/local/share/writedoc
+echo "Finished!"
+[/uninstall]

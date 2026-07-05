@@ -40,46 +40,39 @@ int read_execute(char file[], bool force, bool uninstall) {
 
     if (fptr == NULL && force != true) {
         printf("\033[31m%s %s %s\n",
-               "Unable to locate install file",
+               "Unable to locate file",
                file,
                ". Perhaps you spelt it wrong?\033[0m");
         exit(1);
     }
 
-    char *line = NULL;
-    size_t len = 0;
+    char line[256];
 
     size_t capacity = 512;
     size_t currentLen = 0;
     char *command = malloc(capacity);
     if (!command) {
         fclose(fptr);
+        perror("Out of memory :(");
         return 1;
     }
 
     command[0] = '\0';
 
-    // skip dependency block if needed
     if (!uninstall) {
-        while (getline(&line, &len, fptr) != -1 && line[0] != '=') {
-            // skip until '=' line
+        while (fgets(line, sizeof(line), fptr) && strcmp(line, "[install]\n") != 0) {
+            // skip until [install]
         }
     }
 
     bool first = true;
 
-    while (getline(&line, &len, fptr) != -1) {
-
+    while (fgets(line, sizeof(line), fptr) && strcmp(line, "[/install]\n") != 0) { // checking for [/install] doesn't m
         // strip newline
         line[strcspn(line, "\n")] = '\0';
-
         size_t lineLen = strlen(line);
 
-        if (lineLen == 0) {
-            continue;
-        }
-
-        if (line[0] == '#') {
+        if (lineLen == 0 || line[0] == '#') {
             continue;
         }
 
@@ -89,7 +82,6 @@ int read_execute(char file[], bool force, bool uninstall) {
             char *tmp = realloc(command, capacity);
             if (!tmp) {
                 free(command);
-                free(line);
                 fclose(fptr);
                 return 1;
             }
@@ -106,7 +98,6 @@ int read_execute(char file[], bool force, bool uninstall) {
         first = false;
     }
 
-    free(line);
     fclose(fptr);
 
     int result = system(command);
