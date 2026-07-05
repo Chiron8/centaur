@@ -50,7 +50,9 @@ Dependency *getDependencies(const char *file, const char *parent, Dependency *de
     char packagePath[200];
     char latest[150];
 
+
     snprintf(packagePath, sizeof(packagePath), "/etc/centaur/packages/scripts/%s", file);
+    printf("%s\n", packagePath);
 
     // get latest version of dep
     // this is going to break when we need specific version :)
@@ -124,21 +126,21 @@ Dependency *getDependencies(const char *file, const char *parent, Dependency *de
                 *end = '\0';
             }
             strncpy(depsLine, start, sizeof(depsLine) - 1);
-        }
 
-        char *savePtr;
-        char *token = strtok_r(depsLine, " ", &savePtr);
+            char *savePtr;
+            char *token = strtok_r(depsLine, " ", &savePtr);
 
-        while (token) {
-            if (!alreadyAdded(line, deps, *deps_size)) {
-                // recursion RAAHHH
-                deps = getDependencies(line, file, deps, deps_size);
-            }
-            else {
-                printf("\033[34mSkipping circular dep\033[0m");
-            }
+            while (token) {
+                if (!alreadyAdded(token, deps, *deps_size)) {
+                    // recursion RAAHHH
+                    deps = getDependencies(token, file, deps, deps_size);
+                }
+                else {
+                    printf("\033[34mSkipping circular dep\033[0m");
+                }
             
-            token = strtok_r(NULL, " ", &savePtr);
+                token = strtok_r(NULL, " ", &savePtr);
+            }
         }
     }
     fclose(fptr);

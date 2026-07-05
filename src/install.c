@@ -7,6 +7,7 @@
 #include "parse.h"
 #include "uninstall.h"
 #include "curl_hash.h"
+#include "dependencies.h"
 
 #define BASE_DIR "/etc/centaur/packages"
 
@@ -40,26 +41,38 @@ char* get_cloud_hash(char latest[], char noversion[]) {
     return result;
 }
 
-int add_deps_to_file(char scriptFile[], char installFile[]) {
-    char line[150];
-    FILE *script_ptr = fopen(scriptFile, "r");
-    FILE *install_ptr = fopen(installFile, "a");
+int add_deps_to_file(char package[], char installFile[]) {
+    Dependency *deps = NULL;
+    size_t deps_size = 0;
 
-    if (script_ptr == NULL || install_ptr == NULL) {
-        printf("%s\n", "\033[31mCould not open file to add dependencies to parent install file.\033[0m");
+    deps = getDependencies(package, NULL, deps, &deps_size);
+
+    FILE *install_ptr = fopen(installFile, "a");
+    if (install_ptr == NULL) {
+        printf("\033[31mCould not open file to add dependencies to parent install file.\033[0m\n");
+        for (size_t i = 0; i < deps_size; i++) {
+            free(deps[i].dep);
+            free(deps[i].parent);
+        }
+        free(deps);
         exit(1);
     }
 
-    fprintf(install_ptr, "%s\n", "=== STUFF ABOVE = PARENT PACKAGES, STUFF BELOW = DEPENDENCIES ===");
-
-    while (fgets(line, sizeof(line), script_ptr)) {
-        if (line[0] == '=') {
-            break;
+    fprintf(install_ptr, "%s\n", "=== STUFF ABOVE = PARENT PACKAGES, STUFF BELOW = DEPENDENCIES");
+    for (size_t i = 0; i < deps_size; i++) {
+        if (deps[i].parent != NULL && strcmp(deps[i].parent, package) == 0) {
+            printf("%s\n", deps[i].parent);
+            fprintf(install_ptr, "%s\n", deps[i].dep);
         }
-        fprintf(install_ptr, "%s\n", line);
     }
-    fclose(script_ptr);
+
     fclose(install_ptr);
+
+    for (size_t i = 0; i < deps_size; i++) {
+        free(deps[i].dep);
+        free(deps[i].parent);
+    }
+    free(deps);
     return 0;
 }
 
@@ -210,6 +223,6 @@ int install(char package[], char parent[], int check_hashes) {
         fclose(uninstall_fptr);
     }
      
-    add_deps_to_file(scriptPath, installPath);
+    add_deps_to_file(package, installPath);
     return 0;
 }
