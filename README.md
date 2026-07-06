@@ -14,10 +14,9 @@ To install a package, the parser first checks for any dependencies that need to 
 
 To uninstall, centaur checks for any dependency conflicts before parsing the uninstall section of the `.centaur` file.
 
-For more information about how the other functions work, [Read the wiki](https://github.com/Chiron8/centaur/wiki)
+For more information about how the other functions work, [Read the wiki](https://github.com/Chiron8/centaur/wiki) or look at the code yourself!
 
 ## How to install
-
 To use centaur you need the following dependencies:
 
 - git
