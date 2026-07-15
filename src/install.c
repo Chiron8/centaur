@@ -61,7 +61,6 @@ int add_deps_to_file(char package[], char installFile[]) {
     fprintf(install_ptr, "%s\n", "=== STUFF ABOVE = PARENT PACKAGES, STUFF BELOW = DEPENDENCIES");
     for (size_t i = 0; i < deps_size; i++) {
         if (deps[i].parent != NULL && strcmp(deps[i].parent, package) == 0) {
-            printf("%s\n", deps[i].parent);
             fprintf(install_ptr, "%s\n", deps[i].dep);
         }
     }
