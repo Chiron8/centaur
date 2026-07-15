@@ -19,10 +19,6 @@ make DESTDIR=$PWD/dest install
 
 echo "running configuration..."
 install -vm755 dest/usr/lib/libncursesw.so.6.6 /usr/lib
-<<<<<<< HEAD
-rm -v  dest/usr/lib/libncursesw.so.6.6
-=======
->>>>>>> refs/remotes/origin/master
 sed -e 's/^#if.*XOPEN.*$/#if 1/' -i dest/usr/include/curses.h
 cp -av dest/* /
 
