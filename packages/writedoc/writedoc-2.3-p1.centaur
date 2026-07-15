@@ -29,3 +29,4 @@ rm /usr/local/share/man/man1/writedoc.1
 rm -r /usr/local/share/writedoc
 echo "Finished!"
 [/uninstall]
+

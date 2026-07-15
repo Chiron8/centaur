@@ -63,8 +63,8 @@ install(FILES "${CMAKE_BINARY_DIR}/centaur-tmpfiles.conf"
 )
 
 install(CODE [[
-  file(MAKE_DIRECTORY "/etc/centaur/packages/installed")
-  file(MAKE_DIRECTORY "/etc/centaur/packages/uninstall")
-  file(MAKE_DIRECTORY "/etc/centaur/packages/world")
-  file(MAKE_DIRECTORY "/etc/centaur/tmp")
+    file(MAKE_DIRECTORY "$ENV{DESTDIR}/etc/centaur/packages/installed")
+    file(MAKE_DIRECTORY "$ENV{DESTDIR}/etc/centaur/packages/uninstall")
+    file(MAKE_DIRECTORY "$ENV{DESTDIR}/etc/centaur/packages/world")
+    file(MAKE_DIRECTORY "$ENV{DESTDIR}/etc/centaur/tmp")
 ]])
