@@ -14,7 +14,7 @@
 char* get_cloud_hash(char latest[], char noversion[]) {
     download_hash(latest, noversion);
     char tmp_hash[256];
-    snprintf(tmp_hash, sizeof(tmp_hash), "%s/%s%s", "/etc/centaur/tmp", noversion, latest);
+    snprintf(tmp_hash, sizeof(tmp_hash), "%s/%s", "/etc/centaur/tmp", latest);
 
     FILE *fptr = fopen(tmp_hash, "r");
     if (fptr == NULL) {

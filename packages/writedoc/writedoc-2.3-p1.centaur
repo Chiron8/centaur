@@ -6,17 +6,18 @@ dependencies = "example"
 
 [install]
 echo "Downloading..."
-wget https://github.com/Chiron8/writedoc/archive/refs/tags/v2.3-p1.tar.gz -O /tmp/centaur/writedoc.tar.gz
+cd /tmp/centaur
+wget https://github.com/Chiron8/writedoc/archive/refs/tags/v2.3-p1.tar.gz
 
 echo "Installing..."
-tar -xf /tmp/centaur/writedoc.tar.gz -C /tmp/centaur
+tar -xf v2.3-p1.tar.gz
 cd /tmp/centaur/writedoc-2.3-p1/
 ./install.sh
 
 echo "Finished installing! "
 echo "Tidying Files..."
 cd ../
-rm writedoc.tar.gz
+rm v2.3-p1.tar.gz
 rm -r writedoc-2.3-p1/
 
 echo "Finished!"
@@ -29,4 +30,3 @@ rm /usr/local/share/man/man1/writedoc.1
 rm -r /usr/local/share/writedoc
 echo "Finished!"
 [/uninstall]
-

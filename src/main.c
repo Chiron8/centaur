@@ -3,6 +3,7 @@
 #include <unistd.h> // to check for root permissions and checks if file exists
 #include <stdlib.h>
 #include <stdbool.h>
+#include <sys/stat.h>
 
 #include "install.h"
 #include "uninstall.h"
@@ -35,6 +36,14 @@ int check_root() {
 int main(int argc, char *argv[]) {
     // ANSI ESCAPE CODES: 31 - RED, 32 - GREEN, 33 - YELLOW, 34 - BLUE
     // printf("\033[XXmthis is some text\033[0m")
+    
+    const char *dir_name = "/tmp/centaur";
+    int status = mkdir(dir_name, 0755);
+
+    if (status != 0) {
+        perror("Error creating /tmp/centaur");
+    }
+
     if (argc < 2) {
         print_usage();
         return 1;

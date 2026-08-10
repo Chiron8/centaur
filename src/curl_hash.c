@@ -14,7 +14,7 @@ int download_hash(const char package[], const char noversion[]) {
     snprintf(url, sizeof(url), "https://raw.githubusercontent.com/Chiron8/centaur/refs/heads/master/packages/HASHES/%s/%s", noversion, package);
 
     char outputFile[256];
-    snprintf(outputFile, sizeof(outputFile), "%s/%s%s", "/etc/centaur/tmp", noversion, package); // no / on purpose, don't want to make dir
+    snprintf(outputFile, sizeof(outputFile), "%s/%s", "/etc/centaur/tmp", package); // no / on purpose, don't want to make dir
 
     curl = curl_easy_init();
     if (curl) {
