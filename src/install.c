@@ -27,7 +27,6 @@ char* get_cloud_hash(char latest[], char noversion[]) {
         fclose(fptr);
         return NULL;
     }
-    fclose(fptr);
 
     line[strcspn(line, "\r\n")] = 0;
 
@@ -38,6 +37,7 @@ char* get_cloud_hash(char latest[], char noversion[]) {
     }
 
     strcpy(result, line);
+    fclose(fptr);
     return result;
 }
 
@@ -160,6 +160,7 @@ int install(char package[], char parent[], int check_hashes) {
         char cloudHash[512];
         snprintf(cloudHash, sizeof(cloudHash), "%s", get_cloud_hash(latest, package));
         if (strcmp(localHash, cloudHash) != 0) {
+            printf("%s\n%s\n", localHash, cloudHash);
             perror("Hashes for your install file DO NOT MATCH with the known file!!!");
             exit(1);
         }
@@ -192,6 +193,8 @@ int install(char package[], char parent[], int check_hashes) {
     if (install_fptr && parent != NULL) {
         char parentLatest[100];
         char parentDirectory[300];
+
+        // this is pretty cool!!!
 
         snprintf(parentDirectory, sizeof(parentDirectory), "%s/scripts/%s", BASE_DIR, parent); 
         int parentCode = get_latest(parentDirectory, parentLatest, sizeof(parentLatest));
