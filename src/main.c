@@ -4,6 +4,8 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <sys/stat.h>
+#include <dirent.h>
+#include <errno.h>
 
 #include "install.h"
 #include "uninstall.h"
@@ -36,12 +38,24 @@ int check_root() {
 int main(int argc, char *argv[]) {
     // ANSI ESCAPE CODES: 31 - RED, 32 - GREEN, 33 - YELLOW, 34 - BLUE
     // printf("\033[XXmthis is some text\033[0m")
-    
-    const char *dir_name = "/tmp/centaur";
-    int status = mkdir(dir_name, 0755);
 
-    if (status != 0) {
-        perror("Error creating /tmp/centaur");
+    // make /tmp/centaur on startup
+    DIR* dir = opendir("/tmp/centaur");
+    if (dir) {
+        closedir(dir);
+    } else if (ENOENT == errno) {
+        int status = mkdir("/tmp/centaur", 0755);
+        if (status != 0) {
+            closedir(dir);
+            perror("Error creating /tmp/centaur");
+            exit(1);
+        }
+        closedir(dir);
+    } else {
+        closedir(dir);
+        perror("Error checking integrity of /tmp/centaur");
+        // integrity is a fancy word
+        exit(1);
     }
 
     if (argc < 2) {
