@@ -1,0 +1,25 @@
+[meta]
+name = "iana_etc"
+version = "20260202"
+dependencies = ""
+SBU = "0.05"
+[/meta]
+
+[install]
+echo "downloading..."
+cd /tmp/centaur
+wget https://github.com/Mic92/iana-etc/releases/download/20260202/iana-etc-20260202.tar.gz
+tar -xf iana-etc-20260202.tar.gz
+cd iana-etc-20260202
+echo "copying files..."
+cp -v services protocols /etc
+echo "cleaning..."
+cd ../
+rm -r iana-etc-20260202
+rm iana-etc-20260202.tar.gz
+[/install]
+
+[uninstall]
+rm /etc/protocols
+rm /etc/services
+[/uninstall]

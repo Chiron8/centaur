@@ -109,7 +109,7 @@ void dep_check(char file[], char package[]) {
         FILE *fptr = fopen(file, "r");
         char line[256];
         printf("\033[31m%s %s%s\n", "The following dependencies still rely on", package, ":");
-        while (fgets(line, 256, fptr) && line[0] != '=') {
+            while (fgets(line, 256, fptr) && line[0] != '=') {
             // print every dep
             printf(" - %s\n", line);
         }
@@ -119,7 +119,64 @@ void dep_check(char file[], char package[]) {
     fclose(fptr);
 }
 
-int uninstall(char package[], int force) {
+char* get_version(char package[]) {
+    // create array of strings for each version of package installed
+    int count = 0;
+    char (*list)[256] = NULL;
+
+    DIR *d;
+    struct dirent *dir;
+    d = opendir("/etc/centaur/packages/installed");
+    if (d) {
+        while ((dir = readdir(d)) != NULL) {
+            if (strstr(dir->d_name, package) != NULL) {
+                count++;
+                list = realloc(list, count * sizeof(*list));
+                dir->d_name[strlen(dir->d_name)-8] = '\0';
+                snprintf(list[count-1], 256, "%s", dir->d_name);
+            }
+        }
+    }
+
+
+    if (count == 0) {
+        printf("%s%s%s\n", "Package ", package, " does not exist.");
+        free(list);
+        exit(1);
+    }
+    else if (count == 1) {
+        char *result = strdup(list[0]);
+        free(list);
+        return result;
+    }
+    else {
+        printf("%s\n", "Multiple versions found!\nPlease select which version is to be uninstalled:");
+        for (int i = 0; i < count; i++) {
+            printf("%d. %s\n", i, list[i]);
+        }
+        int num;
+        printf("\n%s%d%s", "Enter package number to be uninstalled [0-", count-1, "]: ");
+        scanf("%d", &num);
+        if (num > count-1) {
+            printf("%s\n", "Number out of range.");
+            free(list);
+            exit(1);
+        }
+        char *result = strdup(list[num]);
+        free(list);
+        return result;
+    }
+}
+
+int uninstall(char input[], int force) {
+    char *package = NULL;
+
+    if (strchr(input, '-') == NULL) {
+        package = strdup(get_version(input));
+    } else {
+        package = strdup(input);
+    }
+
     char installPath[300];
     char noversion[150];
     snprintf(noversion, sizeof(noversion), "%s", remove_version(package));
@@ -132,7 +189,6 @@ int uninstall(char package[], int force) {
 
     char uninstallPath[200];
     snprintf(uninstallPath, sizeof(uninstallPath), "%s/uninstall/%s%s", BASE_DIR, package, ".centaur");
-
 
     char worldPath[512];
     snprintf(worldPath, sizeof(worldPath), "%s%s%s", "/etc/centaur/packages/world/", package, ".centaur");
