@@ -14,7 +14,7 @@
 char* get_cloud_hash(char latest[], char noversion[]) {
     download_hash(latest, noversion);
     char tmp_hash[256];
-    snprintf(tmp_hash, sizeof(tmp_hash), "%s/%s%s", "/etc/centaur/tmp", noversion, latest);
+    snprintf(tmp_hash, sizeof(tmp_hash), "%s/%s", "/etc/centaur/tmp", latest);
 
     FILE *fptr = fopen(tmp_hash, "r");
     if (fptr == NULL) {
@@ -27,7 +27,6 @@ char* get_cloud_hash(char latest[], char noversion[]) {
         fclose(fptr);
         return NULL;
     }
-    fclose(fptr);
 
     line[strcspn(line, "\r\n")] = 0;
 
@@ -38,6 +37,7 @@ char* get_cloud_hash(char latest[], char noversion[]) {
     }
 
     strcpy(result, line);
+    fclose(fptr);
     return result;
 }
 
@@ -61,7 +61,6 @@ int add_deps_to_file(char package[], char installFile[]) {
     fprintf(install_ptr, "%s\n", "=== STUFF ABOVE = PARENT PACKAGES, STUFF BELOW = DEPENDENCIES");
     for (size_t i = 0; i < deps_size; i++) {
         if (deps[i].parent != NULL && strcmp(deps[i].parent, package) == 0) {
-            printf("%s\n", deps[i].parent);
             fprintf(install_ptr, "%s\n", deps[i].dep);
         }
     }
@@ -161,6 +160,7 @@ int install(char package[], char parent[], int check_hashes) {
         char cloudHash[512];
         snprintf(cloudHash, sizeof(cloudHash), "%s", get_cloud_hash(latest, package));
         if (strcmp(localHash, cloudHash) != 0) {
+            printf("%s\n%s\n", localHash, cloudHash);
             perror("Hashes for your install file DO NOT MATCH with the known file!!!");
             exit(1);
         }
@@ -193,6 +193,8 @@ int install(char package[], char parent[], int check_hashes) {
     if (install_fptr && parent != NULL) {
         char parentLatest[100];
         char parentDirectory[300];
+
+        // this is pretty cool!!!
 
         snprintf(parentDirectory, sizeof(parentDirectory), "%s/scripts/%s", BASE_DIR, parent); 
         int parentCode = get_latest(parentDirectory, parentLatest, sizeof(parentLatest));

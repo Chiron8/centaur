@@ -8,7 +8,7 @@ dependencies = ""
 cd /tmp/centaur
 echo "Downloading tarball..."
 wget https://invisible-island.net/archives/ncurses/ncurses-6.6.tar.gz
-tar -xf /tmp/centaur/ncurses-6.6.tar.gz
+tar -xf ncurses-6.6.tar.gz
 cd ncurses-6.6
 
 echo "configuring and compiling"
@@ -18,8 +18,7 @@ make
 make DESTDIR=$PWD/dest install
 
 echo "running configuration..."
-install -vm755 dest/usr/lib/libncursesw.so.6.5 /usr/lib
-rm -v  dest/usr/lib/libncursesw.so.6.5
+install -vm755 dest/usr/lib/libncursesw.so.6.6 /usr/lib
 sed -e 's/^#if.*XOPEN.*$/#if 1/' -i dest/usr/include/curses.h
 cp -av dest/* /
 
@@ -27,7 +26,7 @@ for lib in ncurses form panel menu; do ln -sfv lib${lib}w.so /usr/lib/lib${lib}.
 
 ln -sfv libncursesw.so /usr/lib/libcurses.so
 
-cp -v -R doc -T /usr/share/doc/ncurses-6.5-20250809
+cp -v -R doc -T /usr/share/doc/ncurses-6.6
 
 echo "tidying up..."
 cd ..
@@ -43,9 +42,7 @@ wget https://invisible-island.net/archives/ncurses/ncurses-6.6.tar.gz
 tar -xf /tmp/centaur/ncurses-6.6.tar.gz
 cd ncurses-6.6
 ./configure --with-shared --without-debug --without-normal --with-cxx-shared --enable-pc-files
-make -n install
 make uninstall
-make clean
 cd ..
 rm ncurses-6.6.tar.gz
 rm -rf ncurses-6.6 
