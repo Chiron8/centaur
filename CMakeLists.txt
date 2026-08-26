@@ -55,13 +55,6 @@ install(DIRECTORY doc/
   DESTINATION /etc/centaur/doc
 )
 
-file(WRITE "${CMAKE_BINARY_DIR}/centaur-tmpfiles.conf"
-"d /tmp/centaur 0755 root root -\n")
-
-install(FILES "${CMAKE_BINARY_DIR}/centaur-tmpfiles.conf"
-        DESTINATION /usr/lib/tmpfiles.d
-)
-
 install(CODE [[
     file(MAKE_DIRECTORY "$ENV{DESTDIR}/etc/centaur/packages/installed")
     file(MAKE_DIRECTORY "$ENV{DESTDIR}/etc/centaur/packages/uninstall")
