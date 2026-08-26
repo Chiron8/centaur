@@ -31,7 +31,6 @@ int add_deps_to_file(char package[], char installFile[]) {
     fprintf(install_ptr, "%s\n", "=== STUFF ABOVE = PARENT PACKAGES, STUFF BELOW = DEPENDENCIES");
     for (size_t i = 0; i < deps_size; i++) {
         if (deps[i].parent != NULL && strcmp(deps[i].parent, package) == 0) {
-            printf("%s\n", deps[i].parent);
             fprintf(install_ptr, "%s\n", deps[i].dep);
         }
     }
@@ -133,6 +132,7 @@ int install(char package[], char parent[], int check_hashes) {
         char cloudHash[512];
         snprintf(cloudHash, sizeof(cloudHash), "%s", download_hash(latest, package));
         if (strcmp(localHash, cloudHash) != 0) {
+            printf("%s\n%s\n", localHash, cloudHash);
             perror("Hashes for your install file DO NOT MATCH with the known file!!!");
             exit(1);
         }
@@ -152,6 +152,8 @@ int install(char package[], char parent[], int check_hashes) {
     if (install_fptr && parent != NULL) {
         char parentLatest[100];
         char parentDirectory[300];
+
+        // this is pretty cool!!!
 
         snprintf(parentDirectory, sizeof(parentDirectory), "%s/scripts/%s", BASE_DIR, parent); 
         int parentCode = get_latest(parentDirectory, parentLatest, sizeof(parentLatest));
