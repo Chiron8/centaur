@@ -11,36 +11,6 @@
 
 #define BASE_DIR "/etc/centaur/packages"
 
-char* get_cloud_hash(char latest[], char noversion[]) {
-    download_hash(latest, noversion);
-    char tmp_hash[256];
-    snprintf(tmp_hash, sizeof(tmp_hash), "%s/%s%s", "/etc/centaur/tmp", noversion, latest);
-
-    FILE *fptr = fopen(tmp_hash, "r");
-    if (fptr == NULL) {
-        perror("could not open tmp hash file");
-        exit(1);
-    }
-    char line[512];
-
-    if (fgets(line, 512, fptr) == NULL) {
-        fclose(fptr);
-        return NULL;
-    }
-    fclose(fptr);
-
-    line[strcspn(line, "\r\n")] = 0;
-
-    char *result = malloc(strlen(line)+1);
-    if (result == NULL) {
-        perror("malloc failed");
-        exit(1);
-    }
-
-    strcpy(result, line);
-    return result;
-}
-
 int add_deps_to_file(char package[], char installFile[]) {
     Dependency *deps = NULL;
     size_t deps_size = 0;
@@ -147,19 +117,12 @@ int install(char package[], char parent[], int check_hashes) {
         }
     }
 
-    if (strcmp(createBlankUninstallFile, "yes") == 0) {
-        FILE *fptr = fopen(uninstallFile, "w");
-        fclose(fptr);
-    }
-
-    fclose(fptr);
-
     if (check_hashes == 1) {
         // hash stuff here
         char localHash[512];
         snprintf(localHash, sizeof(localHash), "%s", calculate_hash(scriptPath));
         char cloudHash[512];
-        snprintf(cloudHash, sizeof(cloudHash), "%s", get_cloud_hash(latest, package));
+        snprintf(cloudHash, sizeof(cloudHash), "%s", download_hash(latest, package));
         if (strcmp(localHash, cloudHash) != 0) {
             perror("Hashes for your install file DO NOT MATCH with the known file!!!");
             exit(1);
@@ -175,19 +138,14 @@ int install(char package[], char parent[], int check_hashes) {
         return 1;
     } 
 
+
+
     if (read_execute(scriptPath, false, false) == 1) {
         printf("\033[31m%s %s%s\n", "ERROR: could not install package ", package, ", trying clean-up...\033[0m");
         uninstall(package, true);
     }
 
     FILE *install_fptr = fopen(installPath, "w");
-
-    /*if (parent == NULL) {
-        char world_file[512];
-        snprintf(world_file, sizeof(world_file), "%s%s", "/etc/centaur/packages/world/", latest);
-        FILE *world_fptr = fopen(world_file, "w");
-        fclose(world_fptr);
-    }*/
 
     // is a dep of blah
     if (install_fptr && parent != NULL) {

@@ -1,4 +1,4 @@
-#include <curl/curl.h> // might write own implementation later
+#include <curl/curl.h>
 #include <string.h>
 #include <stdio.h>
 
@@ -7,7 +7,7 @@ size_t write_data(void *ptr, size_t size, size_t nmemb, FILE *stream) {
     return written;
 }
 
-int download_hash(const char package[], const char noversion[]) {
+char* download_hash(const char package[], const char noversion[]) {
     char url[512];
     CURL *curl;
     FILE *fp;
@@ -37,5 +37,27 @@ int download_hash(const char package[], const char noversion[]) {
         fclose(fp);
     }
     curl_global_cleanup();
-    return 0;
+    
+    FILE *fptr = fopen(outputFile, "r");
+    if (fptr == NULL) {
+        perror("Count not open package hash file");
+        exit(1);
+    }
+
+    char line[512];
+    if (fgets(line, 512, fptr) == NULL) {
+        fclose(fptr);
+        return NULL;
+    }
+    fclose(fptr);
+    line[strcspn(line, "\r\n")] = 0;
+
+    char *result = malloc(strlen(line)+1);
+    if (result == NULL) {
+        perror("malloc failed");
+        exit(1);
+    }
+
+    strcpy(result, line);
+    return result;
 }

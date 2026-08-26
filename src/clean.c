@@ -1,4 +1,3 @@
-//#include "uninstall.h"
 #include "uninstall.h"
 
 #include <stdbool.h>
@@ -11,13 +10,6 @@
 struct dirent *ent;
 
 int check_file(const char name[]) {
-    char worldPath[512];
-    snprintf(worldPath, sizeof(worldPath), "%s%s", "/etc/centaur/packages/world", name);
-
-    if (access(worldPath, F_OK) == 0) {
-        return 1;
-    }
-
     char installPath[512];
     snprintf(installPath, sizeof(installPath), "%s%s", "/etc/centaur/packages/installed/", name);
 
@@ -29,8 +21,7 @@ int check_file(const char name[]) {
     }
 
     char line[256];
-
-    if (fgets(line, 256, install_fptr) && line[0] == '=') {
+    if (fgets(line, 256, install_fptr) && line[0] == '=') { // if first line starts with "=" there are no dependencies
         fclose(install_fptr);
         return 0; // safe to remove
     }
