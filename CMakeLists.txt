@@ -48,23 +48,16 @@ install(TARGETS centaur
 )
 
 install(DIRECTORY packages/
-  DESTINATION /etc/centaur/packages/scripts
+  DESTINATION /var/db/centaur/packages/scripts
 )
 
 install(DIRECTORY doc/
-  DESTINATION /etc/centaur/doc
-)
-
-file(WRITE "${CMAKE_BINARY_DIR}/centaur-tmpfiles.conf"
-"d /tmp/centaur 0755 root root -\n")
-
-install(FILES "${CMAKE_BINARY_DIR}/centaur-tmpfiles.conf"
-        DESTINATION /usr/lib/tmpfiles.d
+  DESTINATION /var/db/centaur/doc
 )
 
 install(CODE [[
-  file(MAKE_DIRECTORY "/etc/centaur/packages/installed")
-  file(MAKE_DIRECTORY "/etc/centaur/packages/uninstall")
-  file(MAKE_DIRECTORY "/etc/centaur/packages/world")
-  file(MAKE_DIRECTORY "/etc/centaur/tmp")
+  file(MAKE_DIRECTORY "/var/db/centaur/packages/installed")
+  file(MAKE_DIRECTORY "/var/db/centaur/packages/uninstall")
+  file(MAKE_DIRECTORY "/var/db/centaur/packages/world")
+  file(MAKE_DIRECTORY "/var/db/centaur/tmp")
 ]])

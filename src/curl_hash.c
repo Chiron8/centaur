@@ -1,6 +1,7 @@
 #include <curl/curl.h>
 #include <string.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 size_t write_data(void *ptr, size_t size, size_t nmemb, FILE *stream) {
     size_t written = fwrite(ptr, size, nmemb, stream);
@@ -14,14 +15,14 @@ char* download_hash(const char package[], const char noversion[]) {
     snprintf(url, sizeof(url), "https://raw.githubusercontent.com/Chiron8/centaur/refs/heads/master/packages/HASHES/%s/%s", noversion, package);
 
     char outputFile[256];
-    snprintf(outputFile, sizeof(outputFile), "%s/%s%s", "/etc/centaur/tmp", noversion, package); // no / on purpose, don't want to make dir
+    snprintf(outputFile, sizeof(outputFile), "/tmp/centaur/%sHASH", package); // no / on purpose, don't want to make dir
 
     curl = curl_easy_init();
     if (curl) {
         fp = fopen(outputFile, "wb");
         if (!fp) {
-            perror("failed to open file to download hash");
-            return 1;
+            perror("Failed to open file to download hash");
+            return NULL;
         }
         curl_easy_setopt(curl, CURLOPT_URL, url);
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data);
@@ -46,6 +47,7 @@ char* download_hash(const char package[], const char noversion[]) {
 
     char line[512];
     if (fgets(line, 512, fptr) == NULL) {
+        perror("package hash file empty!");
         fclose(fptr);
         return NULL;
     }

@@ -5,7 +5,7 @@
 #include <string.h>
 #include <dirent.h>
 
-#define BASE_DIR "/etc/centaur/packages"
+#define BASE_DIR "/var/db/centaur/packages"
 
 int remove_line(const char *file, const char *target) {
     // weird way because theres no inbuilt func :(
@@ -15,7 +15,7 @@ int remove_line(const char *file, const char *target) {
         exit(1);
     }
 
-    FILE *out = fopen("/etc/centaur/tmp/temp.txt", "w");
+    FILE *out = fopen("/var/db/centaur/tmp/temp.txt", "w");
     if (!out) {
         perror("Failed to open temp file");
         fclose(in);
@@ -41,7 +41,7 @@ int remove_line(const char *file, const char *target) {
     fclose(in);
     fclose(out);
 
-    if (remove(file) || rename("/etc/centaur/tmp/temp.txt", file) != 0) {
+    if (remove(file) || rename("/var/db/centaur/tmp/temp.txt", file) != 0) {
         perror("Failed to replace original file");
         exit(1);
     }
@@ -75,7 +75,7 @@ int remove_parent_from_installed_versions_of_dep(const char directory[], const c
         line[strcspn(line, "\n")] = 0;
         while ((entry = readdir(dir)) != NULL) {
             if (strstr(entry->d_name, line)) {
-                snprintf(depFile, sizeof(depFile), "%s%s", "/etc/centaur/packages/installed/", entry->d_name);
+                snprintf(depFile, sizeof(depFile), "%s%s", "/var/db/centaur/packages/installed/", entry->d_name);
                 remove_line(depFile, result);
             }
         }
@@ -134,17 +134,8 @@ int uninstall(char package[], int force) {
     snprintf(uninstallPath, sizeof(uninstallPath), "%s/uninstall/%s%s", BASE_DIR, package, ".centaur");
 
 
-    char worldPath[512];
-    snprintf(worldPath, sizeof(worldPath), "%s%s%s", "/etc/centaur/packages/world/", package, ".centaur");
-
     if (force == 1) {
-        remove_parent_from_installed_versions_of_dep("/etc/centaur/packages/installed", installPath, package);
-
-        if (access(worldPath, F_OK) == 0) {
-            if (remove(worldPath)) {
-                perror("Error removing world files!");
-            }
-        }
+        remove_parent_from_installed_versions_of_dep("/var/db/centaur/packages/installed", installPath, package);
 
         if (remove(installPath)) {
             printf("%s\n", "Error removing install file. Something is definitely really wrong...");
@@ -163,16 +154,10 @@ int uninstall(char package[], int force) {
 
     read_execute(uninstallPath, force, true);
     
-    remove_parent_from_installed_versions_of_dep("/etc/centaur/packages/installed", installPath, package);
+    remove_parent_from_installed_versions_of_dep("/var/db/centaur/packages/installed", installPath, package);
 
 
     printf("\033[32m%s %s\033[0m\n", package, "uninstalled!");
-
-    if (access(worldPath, F_OK) == 0) {
-        if (remove(worldPath)) {
-            perror("Error removing world files!");
-        }
-    }
 
     if (remove(installPath) | remove(uninstallPath)) { // ensure both run
         if (force != 1) {

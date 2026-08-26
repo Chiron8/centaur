@@ -51,8 +51,7 @@ Dependency *getDependencies(const char *file, const char *parent, Dependency *de
     char latest[150];
 
 
-    snprintf(packagePath, sizeof(packagePath), "/etc/centaur/packages/scripts/%s", file);
-    printf("%s\n", packagePath);
+    snprintf(packagePath, sizeof(packagePath), "/var/db/centaur/packages/scripts/%s", file);
 
     // get latest version of dep
     // this is going to break when we need specific version :)

@@ -8,13 +8,13 @@
 #include "install.h"
 #include "dependencies.h"
 
-#define SCRIPT_PATH "/etc/centaur/packages/scripts/"
-#define INSTALLED_PATH "/etc/centaur/packages/installed/"
+#define SCRIPT_PATH "/var/db/centaur/packages/scripts/"
+#define INSTALLED_PATH "/var/db/centaur/packages/installed/"
 
 int needs_update(const char noversion[], const char full_package[]) {
     // full_package = example-0.1.centaur
     char packageDir[512];
-    snprintf(packageDir, sizeof(packageDir), "/etc/centaur/packages/scripts/%s", noversion);
+    snprintf(packageDir, sizeof(packageDir), "/var/db/centaur/packages/scripts/%s", noversion);
 
     char packageLatest[128];
     if (get_latest(packageDir, packageLatest, sizeof(packageLatest)) != 0) {

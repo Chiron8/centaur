@@ -16,7 +16,7 @@ int list() {
     // gracefully stolen from a tutorialspoint article :)
     DIR *dr;
     struct dirent *en;
-    dr = opendir("/etc/centaur/packages/installed/");
+    dr = opendir("/var/db/centaur/packages/installed/");
     while ((en = readdir(dr)) != NULL) {
         /* weird thing to exclude last 7 chars (removes .centaur)
         also check if file is not .. or .*/

@@ -3,6 +3,7 @@
 #include <unistd.h> // to check for root permissions and checks if file exists
 #include <stdlib.h>
 #include <stdbool.h>
+#include <sys/stat.h>
 
 #include "install.h"
 #include "uninstall.h"
@@ -60,6 +61,8 @@ int main(int argc, char *argv[]) {
 
     char package[150];
 
+    mkdir("/tmp/centaur", 0755);
+
     // clean needs root but doesn't have any extra args
     if (strcmp(instruction, "clean") == 0) {
         clean();
@@ -93,7 +96,7 @@ int main(int argc, char *argv[]) {
     if (strcmp(instruction, "install") == 0) {
         if (strcmp(package, "HASHES") == 0) {
             perror("son you can't install the HASHES directory 🥀✌️");
-            exit(1);
+            return 1;
         }
 
         if (argc == 4 && strcmp(argv[3], "no_hash_check") == 0) {

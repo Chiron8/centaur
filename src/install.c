@@ -9,7 +9,7 @@
 #include "curl_hash.h"
 #include "dependencies.h"
 
-#define BASE_DIR "/etc/centaur/packages"
+#define BASE_DIR "/var/db/centaur/packages"
 
 int add_deps_to_file(char package[], char installFile[]) {
     Dependency *deps = NULL;
@@ -61,6 +61,15 @@ int install(char package[], char parent[], int check_hashes) {
         printf("%s\033[0m\n", scriptDirectory);
         exit(1);
     }
+
+    char installPath[200];
+    snprintf(installPath, sizeof(installPath), "%s/installed/%s", BASE_DIR, latest);
+
+    if (access(installPath, F_OK) == 0) {
+        printf("%s\n", "\033[31mPackage already installed\033[0m");
+        return 1;
+    }
+
     snprintf(scriptPath, sizeof(scriptPath), "%s/%s", scriptDirectory, latest);
 
     char uninstallFile[256];
@@ -129,16 +138,8 @@ int install(char package[], char parent[], int check_hashes) {
         }
     }
 
-    char installPath[200];
-    snprintf(installPath, sizeof(installPath), "%s/installed/%s", BASE_DIR, latest);
-
-    if (access(installPath, F_OK) == 0) {
-        // NEED TO CHANGE LOGIC
-        printf("%s\n", "\033[31mPackage already installed\033[0m");
-        return 1;
-    } 
-
-
+    // PRE-COMPILE
+    //pre_compile()
 
     if (read_execute(scriptPath, false, false) == 1) {
         printf("\033[31m%s %s%s\n", "ERROR: could not install package ", package, ", trying clean-up...\033[0m");

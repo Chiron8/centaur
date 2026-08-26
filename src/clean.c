@@ -11,7 +11,7 @@ struct dirent *ent;
 
 int check_file(const char name[]) {
     char installPath[512];
-    snprintf(installPath, sizeof(installPath), "%s%s", "/etc/centaur/packages/installed/", name);
+    snprintf(installPath, sizeof(installPath), "%s%s", "/var/db/centaur/packages/installed/", name);
 
     FILE *install_fptr = fopen(installPath, "r");
 
@@ -31,7 +31,7 @@ int check_file(const char name[]) {
 
 int clean() {
     DIR *dir;
-    if ((dir = opendir("/etc/centaur/packages/installed")) != NULL) {
+    if ((dir = opendir("/var/db/centaur/packages/installed")) != NULL) {
         while ((ent = readdir(dir)) != NULL) {
             if (strcmp(ent->d_name, "..") != 0 && strcmp(ent->d_name, ".") != 0) {
                 if (check_file(ent->d_name) == 0) {
