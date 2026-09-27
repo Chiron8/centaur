@@ -50,6 +50,7 @@ sudo cmake --install .
 - [ ] Port BLFS packages to .centaur files
 - [ ] Improve uninstalling stuff by using a manifest file
 - [ ] Only elevate permissions when necessary
+- [ ] Stop running system() commands
 
 > [!WARNING]
 > A package manager with no bugs is a boring package manager
