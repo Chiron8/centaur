@@ -60,16 +60,16 @@ int install(char package[], char parent[], int check_hashes) {
         printf("%s\033[0m\n", scriptDirectory);
         exit(1);
     }
+    snprintf(scriptPath, sizeof(scriptPath), "%s/%s", scriptDirectory, latest);
 
     char installPath[200];
     snprintf(installPath, sizeof(installPath), "%s/installed/%s", BASE_DIR, latest);
 
     if (access(installPath, F_OK) == 0) {
+        // NEED TO CHANGE LOGIC
         printf("%s\n", "\033[31mPackage already installed\033[0m");
         return 1;
     }
-
-    snprintf(scriptPath, sizeof(scriptPath), "%s/%s", scriptDirectory, latest);
 
     char uninstallFile[256];
     snprintf(uninstallFile, sizeof(uninstallFile), "%s/uninstall/%s", BASE_DIR, latest);
@@ -125,21 +125,22 @@ int install(char package[], char parent[], int check_hashes) {
         }
     }
 
+    if (strcmp(createBlankUninstallFile, "yes") == 0) {
+        FILE *fptr = fopen(uninstallFile, "w");
+        fclose(fptr);
+    }
+
+    fclose(fptr);
+
     if (check_hashes == 1) {
         // hash stuff here
         char localHash[512];
         snprintf(localHash, sizeof(localHash), "%s", calculate_hash(scriptPath));
-        char cloudHash[512];
-        snprintf(cloudHash, sizeof(cloudHash), "%s", download_hash(latest, package));
-        if (strcmp(localHash, cloudHash) != 0) {
-            printf("%s\n%s\n", localHash, cloudHash);
+        if (strcmp(download_hash(latest, package), localHash) != 0) {
             perror("Hashes for your install file DO NOT MATCH with the known file!!!");
             exit(1);
         }
     }
-
-    // PRE-COMPILE
-    //pre_compile()
 
     if (read_execute(scriptPath, false, false) == 1) {
         printf("\033[31m%s %s%s\n", "ERROR: could not install package ", package, ", trying clean-up...\033[0m");
@@ -148,8 +149,16 @@ int install(char package[], char parent[], int check_hashes) {
 
     FILE *install_fptr = fopen(installPath, "w");
 
+    /*if (parent == NULL) {
+        char world_file[512];
+        snprintf(world_file, sizeof(world_file), "%s%s", "/etc/centaur/packages/world/", latest);
+        FILE *world_fptr = fopen(world_file, "w");
+        fclose(world_fptr);
+    }*/
+
     // is a dep of blah
     if (install_fptr && parent != NULL) {
+        printf("\n\n\n\n\n %s \n\n\n\n\n\n", parent);
         char parentLatest[100];
         char parentDirectory[300];
 
@@ -178,7 +187,7 @@ int install(char package[], char parent[], int check_hashes) {
         }
         FILE *uninstall_fptr = fopen(uninstallFile, "w");
         while (fgets(line, sizeof(line), fptr) && strcmp(line, "[/uninstall]\n") != 0) {
-            fprintf(uninstall_fptr, line);
+            fprintf(uninstall_fptr, "%s", line);
         }
         fclose(fptr);
         fclose(uninstall_fptr);
