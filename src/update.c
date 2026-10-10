@@ -12,12 +12,12 @@
 #define INSTALLED_PATH "/var/db/centaur/packages/installed/"
 
 int needs_update(const char noversion[], const char full_package[]) {
-    // full_package = example-0.1.centaur
-    char packageDir[512];
-    snprintf(packageDir, sizeof(packageDir), "/var/db/centaur/packages/scripts/%s", noversion);
+    // full_package = example-0.1
+    char package_dir[512];
+    snprintf(package_dir, sizeof(package_dir), "/var/db/centaur/packages/scripts/%s", noversion);
 
     char packageLatest[128];
-    if (get_latest(packageDir, packageLatest, sizeof(packageLatest)) != 0) {
+    if (get_latest(package_dir, packageLatest, sizeof(packageLatest)) != 0) {
         perror("Could not get latest package");
         exit(1);
     }
@@ -79,8 +79,8 @@ int update(int checkHashes) {
         if (strcmp(de->d_name, "..") != 0 && strcmp(de->d_name, ".") != 0 && needs_update(remove_version(de->d_name), de->d_name)) {
             Dependency *deps = NULL;
             size_t total_deps = 0;
-            deps = getDependencies(remove_version(de->d_name), NULL, deps, &total_deps);
-            reverseDependencies(deps, total_deps);
+            deps = get_dependencies(remove_version(de->d_name), NULL, deps, &total_deps);
+            reverse_dependencies(deps, total_deps);
 
             for (size_t i = 0; i < total_deps; i++) {
                 add_to_array(&dep, &depCap, &depSize, deps[i].dep);

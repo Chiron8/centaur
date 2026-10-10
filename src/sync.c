@@ -6,7 +6,6 @@
 #include <archive_entry.h>
 #include <stdlib.h>
 #include <sys/stat.h>
-#include <errno.h>
 
 #include "curl_hash.h"
 

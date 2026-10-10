@@ -9,11 +9,11 @@
 
 struct dirent *ent;
 
-int check_file(const char name[]) {
-    char installPath[512];
-    snprintf(installPath, sizeof(installPath), "%s%s", "/var/db/centaur/packages/installed/", name);
+int check_file(const char package_name[]) {
+    char install_path[512];
+    snprintf(install_path, sizeof(install_path), "%s%s", "/var/db/centaur/packages/installed/", package_name); // install file path of packge_name
 
-    FILE *install_fptr = fopen(installPath, "r");
+    FILE *install_fptr = fopen(install_path, "r");
 
     if (install_fptr == NULL) {
         perror("Could not open install file");
@@ -33,10 +33,8 @@ int clean() {
     DIR *dir;
     if ((dir = opendir("/var/db/centaur/packages/installed")) != NULL) {
         while ((ent = readdir(dir)) != NULL) {
-            if (strcmp(ent->d_name, "..") != 0 && strcmp(ent->d_name, ".") != 0) {
+            if (strcmp(ent->d_name, "..") != 0 && strcmp(ent->d_name, ".") != 0) { // prevent trying to access files that aren't packages
                 if (check_file(ent->d_name) == 0) {
-                    int len = strlen(ent->d_name);
-                    ent->d_name[len-8] = '\0';
                     uninstall(ent->d_name, false);
                 }
             }

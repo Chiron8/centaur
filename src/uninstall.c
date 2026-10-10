@@ -50,13 +50,11 @@ int remove_line(const char *file, const char *target) {
 }
 
 // I've now come to the conclusion that I have no idea what I'm doin
-int remove_parent_from_installed_versions_of_dep(const char directory[], const char installPath[], const char package[]) {
+int remove_parent_from_installed_versions_of_dep(const char directory[], const char installPath[]) {
     FILE *fptr = fopen(installPath, "r");
     char line[256];
     char depFile[512];
     char result[512];
-
-    snprintf(result, sizeof(result), "%s%s", package, ".centaur");
 
     DIR *dir = opendir(directory);
     struct dirent *entry;
@@ -180,7 +178,7 @@ int uninstall(char input[], int force) {
     char installPath[300];
     char noversion[150];
     snprintf(noversion, sizeof(noversion), "%s", remove_version(package));
-    snprintf(installPath, sizeof(installPath), "%s/installed/%s%s", BASE_DIR, package, ".centaur");
+    snprintf(installPath, sizeof(installPath), "%s/installed/%s", BASE_DIR, package);
 
     if (access(installPath, F_OK) != 0) {
         printf("\033[31m%s %s %s\n", "Package", package, "not installed.\033[0m");
@@ -188,11 +186,10 @@ int uninstall(char input[], int force) {
     }
 
     char uninstallPath[200];
-    snprintf(uninstallPath, sizeof(uninstallPath), "%s/uninstall/%s%s", BASE_DIR, package, ".centaur");
+    snprintf(uninstallPath, sizeof(uninstallPath), "%s/uninstall/%s", BASE_DIR, package);
 
     if (force == 1) {
-        remove_parent_from_installed_versions_of_dep("/var/db/centaur/packages/installed", installPath, package);
-
+        remove_parent_from_installed_versions_of_dep("/var/db/centaur/packages/installed", installPath);
         if (remove(installPath)) {
             printf("%s\n", "Error removing install file. Something is definitely really wrong...");
         }
@@ -210,7 +207,7 @@ int uninstall(char input[], int force) {
 
     read_execute(uninstallPath, force, true);
     
-    remove_parent_from_installed_versions_of_dep("/var/db/centaur/packages/installed", installPath, package);
+    remove_parent_from_installed_versions_of_dep("/var/db/centaur/packages/installed", installPath);
 
 
     printf("\033[32m%s %s\033[0m\n", package, "uninstalled!");

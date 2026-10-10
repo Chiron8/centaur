@@ -3,23 +3,23 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-size_t write_data(void *ptr, size_t size, size_t nmemb, FILE *stream) {
+size_t write_data(void *ptr, size_t size, size_t nmemb, FILE *stream) { // freaky curl stuff
     size_t written = fwrite(ptr, size, nmemb, stream);
     return written;
 }
 
-char* download_hash(const char package[], const char noversion[]) {
+char* download_hash(const char package_name[], const char package_name_no_version[]) {
     char url[512];
     CURL *curl;
     FILE *fp;
-    snprintf(url, sizeof(url), "https://raw.githubusercontent.com/Chiron8/centaur/refs/heads/master/packages/HASHES/%s/%s", noversion, package);
+    snprintf(url, sizeof(url), "https://raw.githubusercontent.com/Chiron8/centaur/refs/heads/master/packages/HASHES/%s/%s", package_name_no_version, package_name); // remote hash address
 
-    char outputFile[256];
-    snprintf(outputFile, sizeof(outputFile), "/tmp/centaur/%sHASH", package); // no / on purpose, don't want to make dir
+    char output_file[256];
+    snprintf(output_file, sizeof(output_file), "/tmp/centaur/%sHASH", package_name); // no / on purpose, don't want to make dir
 
-    curl = curl_easy_init();
+    curl = curl_easy_init(); // more curl stuff I don't understand
     if (curl) {
-        fp = fopen(outputFile, "wb");
+        fp = fopen(output_file, "wb");
         if (!fp) {
             perror("Failed to open file to download hash");
             return NULL;
@@ -39,7 +39,7 @@ char* download_hash(const char package[], const char noversion[]) {
     }
     curl_global_cleanup();
     
-    FILE *fptr = fopen(outputFile, "r");
+    FILE *fptr = fopen(output_file, "r"); // open hash file to read
     if (fptr == NULL) {
         perror("Count not open package hash file");
         exit(1);
@@ -61,5 +61,5 @@ char* download_hash(const char package[], const char noversion[]) {
     }
 
     strcpy(result, line);
-    return result;
+    return result; // return hash
 }

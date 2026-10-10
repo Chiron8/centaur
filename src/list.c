@@ -1,29 +1,21 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <dirent.h>
-
-int list_iscentaur(char file[]) { // list() helper, checks if centaur file
-    size_t len = strlen(file);
-    if (len < 8) {
-        return 0;
-    }
-    return strcmp(file + len - 8, ".centaur") == 0; // checks if file ends with .centaur
-}
-
+#include "colours.h"
 
 int list() {
-    printf("%s\n\n", "\033[34mAll packages currently installed are:\033[0m");
-    // gracefully stolen from a tutorialspoint article :)
-    DIR *dr;
+    printf("%s%s%s\n\n", ANSI_BLUE, "All packages currently installed are:", ANSI_CLEAR);
+
     struct dirent *en;
-    dr = opendir("/var/db/centaur/packages/installed/");
+    DIR *dr = opendir("/var/db/centaur/packages/installed/");
+    if (dr == NULL) {
+        perror("Failed to open installed package directory");
+        exit(1);
+    }
     while ((en = readdir(dr)) != NULL) {
-        /* weird thing to exclude last 7 chars (removes .centaur)
-        also check if file is not .. or .*/
-        if (list_iscentaur(en->d_name)) {
-            size_t len = strlen(en->d_name);
-            printf("\033[32m%.*s\033[0m\n", (int)(len-8), en->d_name);
-        } 
+        if (en->d_name[0] == '.') continue; // skip . and ..
+        printf("%s\n", en->d_name);
     }
     closedir(dr);
     return 0;
