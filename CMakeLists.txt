@@ -48,16 +48,16 @@ install(TARGETS centaur
 )
 
 install(DIRECTORY packages/
-  DESTINATION /etc/centaur/packages/scripts
+  DESTINATION /var/db/centaur/packages/scripts
 )
 
 install(DIRECTORY doc/
-  DESTINATION /etc/centaur/doc
+  DESTINATION /var/db/centaur/doc
 )
 
 install(CODE [[
-    file(MAKE_DIRECTORY "$ENV{DESTDIR}/etc/centaur/packages/installed")
-    file(MAKE_DIRECTORY "$ENV{DESTDIR}/etc/centaur/packages/uninstall")
-    file(MAKE_DIRECTORY "$ENV{DESTDIR}/etc/centaur/packages/world")
-    file(MAKE_DIRECTORY "$ENV{DESTDIR}/etc/centaur/tmp")
+  file(MAKE_DIRECTORY "/var/db/centaur/packages/installed")
+  file(MAKE_DIRECTORY "/var/db/centaur/packages/uninstall")
+  file(MAKE_DIRECTORY "/var/db/centaur/packages/world")
+  file(MAKE_DIRECTORY "/var/db/centaur/tmp")
 ]])

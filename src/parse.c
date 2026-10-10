@@ -6,6 +6,53 @@
 #include <string.h>
 #include <dirent.h>
 
+// returns value of variable in script file
+// caller must free the string
+char *get_meta_variable_value(FILE *script_file, const char *target_variable) {
+    if (!script_file || !target_variable) {
+        return NULL;
+    }
+
+    char line[512];
+    bool in_meta = false;
+    size_t target_len = strlen(target_variable);
+
+    while (fgets(line, sizeof(line), script_file)) {
+        if (strstr(line, "[meta]") != NULL) {
+            in_meta = true;
+            continue;
+        }
+        if (strstr(line, "[/meta]") != NULL) {
+            break;
+        }
+        if (!in_meta) {
+            continue;
+        }
+
+        if (strstr(line, target_variable) != NULL) {
+            char *p = line + target_len; // skip past variable name in memory
+            while (*p == ' ' || *p == '\t') p++;
+            if (*p != '=') {
+                continue; // if line doesn't have = next, it isn't the (variable = value) line
+            }
+            p++; // skip =
+            while (*p == ' ' || *p == '\t') p++;
+            if (*p == '"') {
+                p++;
+            }
+            // remove ending " or SPACE in p
+            size_t val_len = strlen(p);
+            if (val_len > 0 && p[val_len - 1] == '\n') {
+                p[val_len - 1] = '\0';
+            }
+
+            p[strlen(p)-1] = '\0';
+            return strdup(p); // woah this was easy peasy
+        }
+    }
+    return NULL;
+}
+
 int get_latest(const char *path, char *latest, size_t size) {
     // use GNU version sort to find latest version
     struct dirent **namelist;

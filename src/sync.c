@@ -6,7 +6,6 @@
 #include <archive_entry.h>
 #include <stdlib.h>
 #include <sys/stat.h>
-#include <errno.h>
 
 #include "curl_hash.h"
 
@@ -89,7 +88,7 @@ int download_package_dir() {
     curl = curl_easy_init();
 
     if (curl) {
-        fp = fopen("/etc/centaur/tmp/centaur.tar.gz", "wb");
+        fp = fopen("/var/db/centaur/tmp/centaur.tar.gz", "wb");
 
         curl_easy_setopt(curl, CURLOPT_URL, url);
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, fp);
@@ -168,9 +167,9 @@ static int extract_tar(const char *filename, const char *dest_dir) {
 int centaur_sync() {
     download_package_dir();
 
-    extract_tar("/etc/centaur/tmp/centaur.tar.gz", "/etc/centaur/tmp");
-    replace_folders("/etc/centaur/packages/scripts", "/etc/centaur/tmp/centaur-master/packages");
-    remove_directory("/etc/centaur/tmp/git_centaur");
-    remove("/etc/centaur/tmp/centaur.tar.gz");
+    extract_tar("/var/db/centaur/tmp/centaur.tar.gz", "/var/db/centaur/tmp/");
+    replace_folders("/var/db/centaur/packages/scripts", "/var/db/centaur/tmp/centaur-master/packages");
+    remove_directory("/var/db/centaur/tmp/git_centaur");
+    remove("/var/db/centaur/tmp/centaur.tar.gz");
     return 0;
 }

@@ -2,10 +2,10 @@
 
 int license() {
     // output gpl license
-    FILE *fptr = fopen("/etc/centaur/doc/small_license.txt", "r");
+    FILE *fptr = fopen("/var/db/centaur/doc/small_license.txt", "r");
     char line[256];
     while (fgets(line, sizeof(line), fptr)) {
-        printf(line);
+        printf("%s", line);
     }
     fclose(fptr);
     return 0;

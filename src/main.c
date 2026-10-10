@@ -16,29 +16,27 @@
 #include "clean.h"
 #include "sync.h"
 #include "update.h"
+#include "colours.h"
 
 void print_usage() {
     // error message
-    printf("%s\n%s\n\n%s\n%s\n",
-           "\033[31mERROR: Please enter command and related arguments.\033[0m",
-           "\033[34mUSAGE: centaur [COMMAND] [ARGUMENTS]",
+    printf("%s%s\n%s%s\n\n%s\n%s%s\n",
+           ANSI_RED, "ERROR: Please enter command and related arguments.",
+           ANSI_BLUE, "USAGE: centaur [COMMAND] [ARGUMENTS]",
            "see the wiki for more information:",
-           "https://github.com/Chiron8/centaur/wiki\033[0m");
+           "https://github.com/Chiron8/centaur/wiki", ANSI_CLEAR);
 }
 
 int check_root() {
     // checks if program has root permissions
     if (geteuid() != 0) {
-        printf("%s\n", "\033[31mPlease run as root.\033[0m");
+        printf("%s%s%s\n", ANSI_RED, "Please run as root.", ANSI_CLEAR);
         exit(1);
     }
     return 0;
 }
 
 int main(int argc, char *argv[]) {
-    // ANSI ESCAPE CODES: 31 - RED, 32 - GREEN, 33 - YELLOW, 34 - BLUE
-    // printf("\033[XXmthis is some text\033[0m")
-
     // make /tmp/centaur on startup
     DIR* dir = opendir("/tmp/centaur");
     if (dir) {
@@ -83,7 +81,9 @@ int main(int argc, char *argv[]) {
 
     char package[150];
 
-    // clean needs root but doesn't have any extra args
+    mkdir("/tmp/centaur", 0755);
+
+    // clean, sync and update need root but don't have any extra args
     if (strcmp(instruction, "clean") == 0) {
         clean();
         return 0;
@@ -115,8 +115,8 @@ int main(int argc, char *argv[]) {
     // why can't c do switch case for strings >:(
     if (strcmp(instruction, "install") == 0) {
         if (strcmp(package, "HASHES") == 0) {
-            perror("son you can't install the HASHES directory 🥀✌️");
-            exit(1);
+            printf("%s\n", "nice tru...");
+            return 1;
         }
 
         if (argc == 4 && strcmp(argv[3], "no_hash_check") == 0) {
@@ -130,9 +130,9 @@ int main(int argc, char *argv[]) {
         size_t total_deps = 0;
 
         //call main func in dependencies.c
-        deps = getDependencies(package, NULL, deps, &total_deps);
+        deps = get_dependencies(package, NULL, deps, &total_deps);
         //array needs to be reversed so parent directory is installed first
-        reverseDependencies(deps, total_deps);
+        reverse_dependencies(deps, total_deps);
 
 
         printf("%s\n", "\033[34mInstalling packages:\033[0m");
@@ -148,7 +148,7 @@ int main(int argc, char *argv[]) {
             // check if package already exists
             install(deps[i].dep, deps[i].parent, check_hash);
         }
-        freeDependencies(deps, total_deps);
+        free_dependencies(deps, total_deps);
         return 0;
     }
     if (strcmp(instruction, "uninstall") == 0) {
