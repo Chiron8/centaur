@@ -32,10 +32,10 @@ jobs:
           # Determine changed files
           if git rev-parse "$GITHUB_SHA^" >/dev/null 2>&1; then
             # Normal case: there is a parent commit
-            CHANGED_FILES=$(git diff --name-only "$GITHUB_SHA^" "$GITHUB_SHA" -- packages/ | grep -v "^$HASH_DIR/")
+            CHANGED_FILES=$(git diff --name-only "$GITHUB_SHA^" "$GITHUB_SHA" -- packages/ | grep -v "^$HASH_DIR/" || true)
           else
             # First commit or orphan branch: take all files
-            CHANGED_FILES=$(git ls-tree -r --name-only "$GITHUB_SHA" -- packages/ | grep -v "^$HASH_DIR/")
+            CHANGED_FILES=$(git ls-tree -r --name-only "$GITHUB_SHA" -- packages/ | grep -v "^$HASH_DIR/" || true)
           fi
 
           if [ -z "$CHANGED_FILES" ]; then
