@@ -48,10 +48,12 @@ sudo cmake --install .
 - [ ] Use sandboxing when installing packages (broken package = bad)
 - [ ] Only use privilege escalation when necessary
 - [ ] Create manifest when installing so uninstalling is easier and more reliable :)
-- [x] This list is starting to look empty
 - [ ] Support installing specific versions
 - [ ] Port all LFS required packages to .centaur files
 - [ ] Port BLFS packages to .centaur files
+- [ ] Improve uninstalling stuff by using a manifest file
+- [ ] Only elevate permissions when necessary
+- [ ] Stop running system() commands
 
 > [!WARNING]
 > A package manager with no bugs is a boring package manager
