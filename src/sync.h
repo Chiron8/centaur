@@ -3,3 +3,4 @@ int extract_tar_gz(const char *filename, const char *dest);
 int replace_folders(char original_dir[], char replacer[]);
 int download_package_dir();
 int centaur_sync();
+int extract_tar(const char *filename, const char *dest_dir);

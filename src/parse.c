@@ -5,19 +5,26 @@
 #include <stdlib.h>
 #include <string.h>
 #include <dirent.h>
+#include <unistd.h>
 
 // returns value of variable in script file
 // caller must free the string
-char *get_meta_variable_value(FILE *script_file, const char *target_variable) {
-    if (!script_file || !target_variable) {
+char *get_meta_variable_value(char *script_path, const char *target_variable) {
+    if (!script_path || !target_variable) {
         return NULL;
     }
 
     char line[512];
     bool in_meta = false;
     size_t target_len = strlen(target_variable);
+    FILE *script_fptr = fopen(script_path, "r");
+    if (script_fptr == NULL) {
+        perror("Could not open script file");
+        fclose(script_fptr);
+        exit(1);
+    }
 
-    while (fgets(line, sizeof(line), script_file)) {
+    while (fgets(line, sizeof(line), script_fptr)) {
         if (strstr(line, "[meta]") != NULL) {
             in_meta = true;
             continue;
@@ -46,10 +53,14 @@ char *get_meta_variable_value(FILE *script_file, const char *target_variable) {
                 p[val_len - 1] = '\0';
             }
 
-            p[strlen(p)-1] = '\0';
+            if (p[strlen(p)-1] == '"') {
+                p[strlen(p)-1] = '\0';
+            }
+            fclose(script_fptr);
             return strdup(p); // woah this was easy peasy
         }
     }
+    fclose(script_fptr);
     return NULL;
 }
 
@@ -82,7 +93,7 @@ int get_latest(const char *path, char *latest, size_t size) {
     return 0;
 }
 
-int read_execute(char file[], bool force, bool uninstall) {
+int read_execute(char file[], char build_dir[], bool force, bool uninstall) {
     FILE *fptr = fopen(file, "r");
 
     if (fptr == NULL && force != true) {
@@ -147,7 +158,14 @@ int read_execute(char file[], bool force, bool uninstall) {
 
     fclose(fptr);
 
-    int result = system(command);
+    if (build_dir) {
+        if (chdir(build_dir) != 0) {
+            perror("Failed to change directory");
+            exit(1);
+        }
+    }
+
+    int result = system(command); // crazy how this is the thing that just does everything
 
     free(command);
     return (result > 0);

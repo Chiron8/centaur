@@ -9,8 +9,32 @@
 #include "curl_hash.h"
 #include "dependencies.h"
 #include "colours.h"
+#include "sync.h"
 
 #define BASE_DIR "/var/db/centaur/packages"
+
+int download_tarball(char install_file[], char package_name[]) {
+    char *source = get_meta_variable_value(install_file, "source");
+    char *checksum = get_meta_variable_value(install_file, "checksum");
+    char download_file[256];
+    snprintf(download_file, sizeof(download_file), "%s%s%s", "/tmp/centaur/", package_name, "TARBALL");
+
+    curl_tarball(source, download_file);
+    if (strcmp(calculate_hash(download_file), checksum) != 0) {
+        printf("%s%s%s", ANSI_RED, "TARBALL CHECKSUMS DO NOT MATCH!", ANSI_CLEAR);
+        free(source);
+        free(checksum);
+        exit(1);
+    }
+    char source_directory[256];
+    snprintf(source_directory, sizeof(source_directory), "%s%s%s", "/tmp/centaur/", package_name, "SOURCE");
+
+    extract_tar(download_file, source_directory);
+
+    free(source);
+    free(checksum);
+    return 0;
+}
 
 int add_deps_to_file(char package_name[], char install_file[]) {
     Dependency *deps = NULL;
@@ -75,7 +99,14 @@ int install(char package_name[], char parent[], int check_hashes) {
         }
     }
 
-    if (read_execute(script_path, false, false) == 1) {
+    download_tarball(script_path, package_name);
+
+    char *extracted_folder_name = get_meta_variable_value(script_path, "source_directory");
+
+    char source_directory[256];
+    snprintf(source_directory, sizeof(source_directory), "%s%s%s/%s", "/tmp/centaur/", package_name, "SOURCE", extracted_folder_name);
+
+    if (read_execute(script_path, source_directory, false, false) == 1) {
         printf("\033[31m%s %s%s\n", "ERROR: could not install package ", package_name, ", trying clean-up...\033[0m");
         uninstall(package_name, true);
     }
@@ -109,7 +140,7 @@ int install(char package_name[], char parent[], int check_hashes) {
         exit(1);
     }
 
-    char *createBlankUninstallFile = get_meta_variable_value(fptr, "create_blank_uninstall_file");
+    char *createBlankUninstallFile = get_meta_variable_value(script_path, "create_blank_uninstall_file");
 
     char uninstall_file[256];
     snprintf(uninstall_file, sizeof(uninstall_file), "%s/uninstall/%s", BASE_DIR, latest);

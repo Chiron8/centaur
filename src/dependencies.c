@@ -85,7 +85,7 @@ Dependency *get_dependencies(const char *file, const char *parent, Dependency *d
     deps[*deps_size - 1].dep = strdup(file);
     deps[*deps_size -1].parent = parent ? strdup(parent) : NULL;
 
-    char *value = get_meta_variable_value(fptr, "dependencies");
+    char *value = get_meta_variable_value(package_script_path, "dependencies");
     if (value) {
         char *save_ptr;
         char *token = strtok_r(value, " ", &save_ptr);

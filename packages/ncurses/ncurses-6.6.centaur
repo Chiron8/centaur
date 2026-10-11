@@ -2,15 +2,13 @@
 name = "ncurses"
 version = "6.6"
 dependencies = ""
+source = "https://invisible-island.net/archives/ncurses/ncurses-6.6.tar.gz"
+checksum = "355b4cbbed880b0381a04c46617b7656e362585d52e9cf84a67e2009b749ff11"
+source_directory = "ncurses-6.6"
 [/meta]
 
 [install]
-cd /tmp/centaur
-echo "Downloading tarball..."
-wget https://invisible-island.net/archives/ncurses/ncurses-6.6.tar.gz
-tar -xf ncurses-6.6.tar.gz
-cd ncurses-6.6
-
+ls
 echo "configuring and compiling"
 ./configure --with-shared --without-debug --without-normal --with-cxx-shared --enable-pc-files
 make
@@ -27,12 +25,6 @@ for lib in ncurses form panel menu; do ln -sfv lib${lib}w.so /usr/lib/lib${lib}.
 ln -sfv libncursesw.so /usr/lib/libcurses.so
 
 cp -v -R doc -T /usr/share/doc/ncurses-6.6
-
-echo "tidying up..."
-cd ..
-rm ncurses-6.6.tar.gz
-rm -rf ncurses-6.6 
-echo "finished!!!"
 [/install]
 
 [uninstall]
