@@ -205,7 +205,7 @@ int uninstall(char input[], int force) {
 
     dep_check(installPath, package);
 
-    read_execute(uninstallPath, force, true);
+    read_execute(uninstallPath, NULL, force, true);
     
     remove_parent_from_installed_versions_of_dep("/var/db/centaur/packages/installed", installPath);
 

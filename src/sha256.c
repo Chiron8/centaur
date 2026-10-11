@@ -310,6 +310,7 @@ char *calculate_hash(char file[])
     {
         sha256_update( &ctx, buf, i );
     }
+    fclose(f);
 
     sha256_finish( &ctx, sha256sum );
     char hash[65];
@@ -321,7 +322,7 @@ char *calculate_hash(char file[])
 
     hash[64] = '\0';
 
-    char *result = malloc(strlen(hash+1));
+    char *result = malloc(strlen(hash)+1);
     if (result == NULL) {
         perror("malloc failed");
         exit(1);

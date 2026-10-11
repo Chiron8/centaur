@@ -109,7 +109,7 @@ int download_package_dir() {
     return 0;
 }
 
-static int extract_tar(const char *filename, const char *dest_dir) {
+int extract_tar(const char *filename, const char *dest_dir) {
     struct archive *a = archive_read_new();
     struct archive *ext = archive_write_disk_new();
     struct archive_entry *entry;

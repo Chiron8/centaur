@@ -3,10 +3,30 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+
 size_t write_data(void *ptr, size_t size, size_t nmemb, FILE *stream) { // freaky curl stuff
     size_t written = fwrite(ptr, size, nmemb, stream);
     return written;
 }
+
+int curl_tarball(char source[], char download_file[]) {
+    CURL *curl;
+    FILE *fp;
+    CURLcode res;
+    curl = curl_easy_init();
+    if (curl) {
+        fp = fopen(download_file,"wb");
+        curl_easy_setopt(curl, CURLOPT_URL, source);
+        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data);
+        curl_easy_setopt(curl, CURLOPT_WRITEDATA, fp);
+        res = curl_easy_perform(curl);
+        /* always cleanup */
+        curl_easy_cleanup(curl);
+        fclose(fp);
+    }
+    return 0;
+}
+
 
 char* download_hash(const char package_name[], const char package_name_no_version[]) {
     char url[512];
