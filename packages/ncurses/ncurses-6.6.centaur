@@ -8,7 +8,6 @@ source_directory = "ncurses-6.6"
 [/meta]
 
 [install]
-ls
 echo "configuring and compiling"
 ./configure --with-shared --without-debug --without-normal --with-cxx-shared --enable-pc-files
 make
