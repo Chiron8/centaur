@@ -4,7 +4,7 @@
 
 ## What is Centaur?
 
-Centaur is a compile based package manager designed for UNIX based operating systems and is the default for ChironOS. Instead of downloading a pre-built binary file, centaur downloads the source code and compiles it on-device.
+Centaur is a compile based package manager designed for UNIX-like operating systems and is the default for ChironOS. Instead of downloading a pre-built binary file, centaur downloads the source code and compiles it on-device.
 
 Centaur can install, uninstall, update, sync scripts and automatically remove unused dependencies.
 
