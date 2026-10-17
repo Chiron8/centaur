@@ -1,8 +1,10 @@
+#include <bits/types/idtype_t.h>
 #include <stdio.h>
 #include <unistd.h>
 #include <string.h>
 #include <stdlib.h>
 #include <sys/wait.h>
+#include <sys/stat.h>
 
 #include "sha256.h"
 #include "parse.h"
@@ -13,6 +15,24 @@
 #include "sync.h"
 
 #define BASE_DIR "/var/db/centaur/packages"
+
+int is_symlink(const char *path) {
+    struct stat path_stat;
+    if (lstat(path, &path_stat) < 0) {
+        perror("lstat failed");
+        exit(1);
+    }
+    return S_ISLNK(path_stat.st_mode);
+}
+
+int mkdir_helper(char directory[]) {
+    int mkdir_status = mkdir(directory, 0755);
+    if (mkdir_status != 0) {
+        perror("Error creating staging directory");
+        exit(1);
+    }
+    return 0;
+}
 
 int prepare_install(char installer_path[], char script_file[]) {
     FILE *installer_fptr = fopen(installer_path, "w");
@@ -59,19 +79,60 @@ int download_tarball(char install_file[], char package_name[]) {
     return 0;
 }
 
-int run_bwrap(char staging_dir[], char installer_script[]) {
-    char work_dir[512];
-    snprintf(work_dir, sizeof(work_dir), "%s/work", staging_dir); // tmp dir for overlayfs
+int run_bwrap(char staging_dir[], char installer_script[], char source_directory[]) {
+    // I hope you can forgive me using AI to generate these blocks
+    char usr_stage[512], usr_work[512];
+    char etc_stage[512], etc_work[512];
+    char var_stage[512], var_work[512];
+    char opt_stage[512], opt_work[512];
+
+    snprintf(usr_stage, sizeof(usr_stage), "%s/usr", staging_dir);
+    snprintf(usr_work, sizeof(usr_work), "%s/usr_work", staging_dir);
+    snprintf(etc_stage, sizeof(etc_stage), "%s/etc", staging_dir);
+    snprintf(etc_work, sizeof(etc_work), "%s/etc_work", staging_dir);
+    snprintf(var_stage, sizeof(var_stage), "%s/var", staging_dir);
+    snprintf(var_work, sizeof(var_work), "%s/var_work", staging_dir);
+    snprintf(opt_stage, sizeof(opt_stage), "%s/opt", staging_dir);
+    snprintf(opt_work, sizeof(opt_work), "%s/opt_work", staging_dir);
+
+    mkdir_helper(usr_stage);   mkdir_helper(usr_work);
+    mkdir_helper(etc_stage);   mkdir_helper(etc_work);
+    mkdir_helper(var_stage);   mkdir_helper(var_work);
+    mkdir_helper(opt_stage);   mkdir_helper(opt_work);
+
     char *args[] = {
-        BWRAP_PATH, // bwrap executable defined by CMAKE ignore this error
-        "--unshare-all", // keep installer away from host system except for networking (line below)
-        "--share-net",
-        "--ro-bind", "/", "/", // keep root fs as ro so host toolchain is still visible
-        "--overlay", staging_dir, work_dir, "/usr", // create overlayFS to make toolchain useable
-        "--", // separate args from actual command
+        BWRAP_PATH,          // bwrap executable defined by CMAKE
+        "--unshare-all",     // Isolate the installer from the host system
+        "--share-net",       // Allow network access for downloading/fetching if needed
+        "--ro-bind", "/", "/", // Keep root fs read-only so host toolchain & /bin/sh remain visible
+        "--proc", "/proc",   // Essential kernel virtual filesystem
+        "--dev", "/dev",     // Essential device pseudo-files
+
+        // --- /usr Overlay ---
+        "--overlay-src", "/usr",
+        "--overlay", usr_stage, usr_work, "/usr",
+
+        // --- /etc Overlay ---
+        "--overlay-src", "/etc",
+        "--overlay", etc_stage, etc_work, "/etc",
+
+        // --- /var Overlay ---
+        //"--overlay-src", "/var",
+        //"--overlay", var_stage, var_work, "/var",
+
+        // --- /opt Overlay ---
+        "--overlay-src", "/opt",
+        "--overlay", opt_stage, opt_work, "/opt",
+
+        "--chdir", source_directory,
+        "--",                // Separate bwrap flags from the actual command
         "/bin/sh", installer_script,
-        NULL // i think this means the end of the command????
+        NULL                 // Marks the end of the argument array
     };
+
+    for (int i = 0; args[i] != NULL; i++) {
+        printf("arg[%d]: %s\n", i, args[i]);
+    }
 
     pid_t pid = fork(); // create new process
     if (pid < 0) {
@@ -166,11 +227,13 @@ int install(char package_name[], char parent[], int check_hashes) {
     char staging_directory[256];
     snprintf(staging_directory, sizeof(staging_directory), "%s%s%s", "/tmp/centaur/", package_name, "STAGING");
 
+    mkdir_helper(staging_directory);
+
     char installer_path[512];
     snprintf(installer_path, sizeof(installer_path), "%s/centaur_installer.sh", source_directory);
 
     prepare_install(installer_path, script_path);
-    run_bwrap(staging_directory, installer_path);
+    run_bwrap(staging_directory, installer_path, source_directory);
 
     FILE *install_fptr = fopen(install_path, "w");
 
