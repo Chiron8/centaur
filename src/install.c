@@ -18,10 +18,9 @@ int download_tarball(char install_file[], char package_name[]) {
     char *checksum = get_meta_variable_value(install_file, "checksum");
     char download_file[256];
     snprintf(download_file, sizeof(download_file), "%s%s%s", "/tmp/centaur/", package_name, "TARBALL");
-
     curl_tarball(source, download_file);
     if (strcmp(calculate_hash(download_file), checksum) != 0) {
-        printf("%s%s%s", ANSI_RED, "TARBALL CHECKSUMS DO NOT MATCH!", ANSI_CLEAR);
+        printf("%s%s%s\n", ANSI_RED, "TARBALL CHECKSUMS DO NOT MATCH!", ANSI_CLEAR);
         free(source);
         free(checksum);
         exit(1);
@@ -117,8 +116,6 @@ int install(char package_name[], char parent[], int check_hashes) {
     if (install_fptr && parent != NULL) {
         char parent_latest[100];
         char parent_directory[300];
-
-        // this is pretty cool!!!
 
         snprintf(parent_directory, sizeof(parent_directory), "%s/scripts/%s", BASE_DIR, parent); 
         int parentCode = get_latest(parent_directory, parent_latest, sizeof(parent_latest));

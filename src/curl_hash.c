@@ -16,10 +16,19 @@ int curl_tarball(char source[], char download_file[]) {
     curl = curl_easy_init();
     if (curl) {
         fp = fopen(download_file,"wb");
+        if (!fp) {
+            perror("Downloading tarball failed");
+            exit(1);
+        }
         curl_easy_setopt(curl, CURLOPT_URL, source);
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data);
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, fp);
+        curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
         res = curl_easy_perform(curl);
+        if (res != CURLE_OK) {
+            fprintf(stderr, "curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
+            exit(1);
+        }
         /* always cleanup */
         curl_easy_cleanup(curl);
         fclose(fp);
