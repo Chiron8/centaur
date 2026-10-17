@@ -14,7 +14,7 @@
 
 #define BASE_DIR "/var/db/centaur/packages"
 
-int prepare_install(char installer_path[], char script_file[], char build_dir[], bool force) {
+int prepare_install(char installer_path[], char script_file[]) {
     FILE *installer_fptr = fopen(installer_path, "w");
     if (!installer_fptr) {
         perror("Could not create installer");
@@ -169,6 +169,7 @@ int install(char package_name[], char parent[], int check_hashes) {
     char installer_path[512];
     snprintf(installer_path, sizeof(installer_path), "%s/centaur_installer.sh", source_directory);
 
+    prepare_install(installer_path, script_path);
     run_bwrap(staging_directory, installer_path);
 
     FILE *install_fptr = fopen(install_path, "w");
