@@ -2,6 +2,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <stdlib.h>
+#include <sys/wait.h>
 
 #include "sha256.h"
 #include "parse.h"
@@ -12,6 +13,29 @@
 #include "sync.h"
 
 #define BASE_DIR "/var/db/centaur/packages"
+
+int prepare_install(char installer_path[], char script_file[], char build_dir[], bool force) {
+    FILE *installer_fptr = fopen(installer_path, "w");
+    if (!installer_fptr) {
+        perror("Could not create installer");
+        exit(1);
+    }
+    FILE *script_fptr = fopen(script_file, "r");
+    if (!script_fptr) {
+        perror("Could not open package script file");
+        exit(1);
+    }
+    char line[512];
+    while (fgets(line, sizeof(line), script_fptr) && strcmp(line, "[install]\n") != 0) {
+        // skip until [install]
+    }
+    while (fgets(line, sizeof(line), script_fptr) && strcmp(line, "[/install]\n") != 0) {
+        fprintf(installer_fptr, "%s", line);
+    }
+    fclose(installer_fptr);
+    fclose(script_fptr);
+    return 0;
+}
 
 int download_tarball(char install_file[], char package_name[]) {
     char *source = get_meta_variable_value(install_file, "source");
@@ -33,6 +57,40 @@ int download_tarball(char install_file[], char package_name[]) {
     free(source);
     free(checksum);
     return 0;
+}
+
+int run_bwrap(char staging_dir[], char installer_script[]) {
+    char work_dir[512];
+    snprintf(work_dir, sizeof(work_dir), "%s/work", staging_dir); // tmp dir for overlayfs
+    char *args[] = {
+        BWRAP_PATH, // bwrap executable defined by CMAKE ignore this error
+        "--unshare-all", // keep installer away from host system except for networking (line below)
+        "--share-net",
+        "--ro-bind", "/", "/", // keep root fs as ro so host toolchain is still visible
+        "--overlay", staging_dir, work_dir, "/usr", // create overlayFS to make toolchain useable
+        "--", // separate args from actual command
+        "/bin/sh", installer_script,
+        NULL // i think this means the end of the command????
+    };
+
+    pid_t pid = fork(); // create new process
+    if (pid < 0) {
+        perror("Failed to fork");
+        exit(1);
+    }
+    if (pid == 0) {
+        execvp("bwrap", args);
+        perror("Failed to execute installer"); // if execvp() returns, there was an error
+        exit(1);
+    }
+    else {
+        int status;
+        waitpid(pid, &status, 0);
+        if (WIFEXITED(status)) { // i didn't realise there a term called wife too awww
+            return WEXITSTATUS(status);
+        }
+        return -1;
+    }
 }
 
 int add_deps_to_file(char package_name[], char install_file[]) {
@@ -105,10 +163,13 @@ int install(char package_name[], char parent[], int check_hashes) {
     char source_directory[256];
     snprintf(source_directory, sizeof(source_directory), "%s%s%s/%s", "/tmp/centaur/", package_name, "SOURCE", extracted_folder_name);
 
-    if (read_execute(script_path, source_directory, false, false) == 1) {
-        printf("\033[31m%s %s%s\n", "ERROR: could not install package ", package_name, ", trying clean-up...\033[0m");
-        uninstall(package_name, true);
-    }
+    char staging_directory[256];
+    snprintf(staging_directory, sizeof(staging_directory), "%s%s%s", "/tmp/centaur/", package_name, "STAGING");
+
+    char installer_path[512];
+    snprintf(installer_path, sizeof(installer_path), "%s/centaur_installer.sh", source_directory);
+
+    run_bwrap(staging_directory, installer_path);
 
     FILE *install_fptr = fopen(install_path, "w");
 

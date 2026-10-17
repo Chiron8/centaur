@@ -93,33 +93,6 @@ int get_latest(const char *path, char *latest, size_t size) {
     return 0;
 }
 
-int prepare_install(char script_file[], char build_dir[], bool force) {
-    char installer_path[512];
-    snprintf(installer_path, sizeof(installer_path), "%s/centaur_installer.sh", build_dir);
-    FILE *installer_fptr = fopen(installer_path, "w");
-    if (!installer_fptr) {
-        perror("Could not create installer");
-        exit(1);
-    }
-    FILE *script_fptr = fopen(script_file, "r");
-    if (!script_fptr) {
-        perror("Could not open package script file");
-        exit(1);
-    }
-    char line[512];
-    while (fgets(line, sizeof(line), script_fptr) && strcmp(line, "[install]\n") != 0) {
-        // skip until [install]
-    }
-    while (fgets(line, sizeof(line), script_fptr) && strcmp(line, "[/install]\n") != 0) {
-        fprintf(installer_fptr, "%s", line);
-    }
-    fclose(installer_fptr);
-    fclose(script_fptr);
-    return 0;
-}
-
-
-
 int read_execute(char file[], char build_dir[], bool force, bool uninstall) {
     FILE *fptr = fopen(file, "r");
 
