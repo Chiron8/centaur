@@ -20,6 +20,27 @@
 
 #define BASE_DIR "/var/db/centaur/packages"
 
+void manifest_helper(char dr[], char manifest_file[], char root_dir[]) {
+    DIR *dir = opendir(dr);
+    if (dir){
+        FILE *fptr = fopen(manifest_file, "a");
+        if (!fptr) {
+            perror("Could not open manifest file");
+            exit(1);
+        }
+        struct dirent *de;
+        char line[512];
+        while ((de = readdir(dir)) != NULL) {
+            if (strcmp(de->d_name, ".") == 0 || strcmp(de->d_name, "..") == 0) {
+                continue;
+            }
+            snprintf(line, sizeof(line), "%s%s\n", root_dir, de->d_name);
+            fprintf(fptr, "%s", line);
+        }
+        closedir(dir);
+    }
+}
+
 int generate_manifest(char staging_directory[], char full_package_name[]) {
     char manifest_file[512];
     snprintf(manifest_file, sizeof(manifest_file), "%s%s%s", "/var/db/centaur/packages/installed/", full_package_name, ".manifest");
@@ -28,8 +49,8 @@ int generate_manifest(char staging_directory[], char full_package_name[]) {
         perror("Could not create manifest file");
         exit(1);
     }
+    fclose(fptr);
 
-    struct dirent *de;
     char etc_dir[256];
     char usr_dir[256];
     char opt_dir[256];
@@ -38,36 +59,10 @@ int generate_manifest(char staging_directory[], char full_package_name[]) {
     snprintf(usr_dir, sizeof(usr_dir), "%s%s", staging_directory, "/usr");
     snprintf(opt_dir, sizeof(opt_dir), "%s%s", staging_directory, "/opt");
 
-    char line[512];
+    manifest_helper(etc_dir, manifest_file, "/etc/");
+    manifest_helper(usr_dir, manifest_file, "/usr/");
+    manifest_helper(opt_dir, manifest_file, "/opt/");
 
-    DIR *etc_dr = opendir(etc_dir);
-
-    if (etc_dr) {
-        while ((de = readdir(etc_dr)) != NULL) {
-            snprintf(line, sizeof(line), "%s%s", "/etc/", de->d_name);
-            fprintf(fptr, "%s", line);
-        }
-        closedir(etc_dr);
-    }
-
-    DIR *usr_dr = opendir(usr_dir);
-
-    if (usr_dr) {
-        while ((de = readdir(usr_dr)) != NULL) {
-            snprintf(line, sizeof(line), "%s%s", "/usr/", de->d_name);
-            fprintf(fptr, "%s", line);
-        }
-        closedir(usr_dr);
-    }
-
-    DIR *opt_dr = opendir(opt_dir);
-    if (opt_dr) {
-        while ((de = readdir(opt_dr)) != NULL) {
-            snprintf(line, sizeof(line), "%s%s", "/opt/", de->d_name);
-            fprintf(fptr, "%s", line);
-        }
-        closedir(opt_dr);
-    }
     return 0;
 }
 
