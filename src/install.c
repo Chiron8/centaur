@@ -5,6 +5,10 @@
 #include <stdlib.h>
 #include <sys/wait.h>
 #include <sys/stat.h>
+#include <dirent.h>
+#include <stdlib.h>
+#include <sys/types.h>
+#include <fcntl.h>
 
 #include "sha256.h"
 #include "parse.h"
@@ -16,13 +20,115 @@
 
 #define BASE_DIR "/var/db/centaur/packages"
 
-int is_symlink(const char *path) {
-    struct stat path_stat;
-    if (lstat(path, &path_stat) < 0) {
-        perror("lstat failed");
+int generate_manifest(char staging_directory[], char full_package_name[]) {
+    char manifest_file[512];
+    snprintf(manifest_file, sizeof(manifest_file), "%s%s%s", "/var/db/centaur/packages/installed/", full_package_name, ".manifest");
+    FILE *fptr = fopen(manifest_file, "w");
+    if (!fptr) {
+        perror("Could not create manifest file");
         exit(1);
     }
-    return S_ISLNK(path_stat.st_mode);
+
+    struct dirent *de;
+    char etc_dir[256];
+    char usr_dir[256];
+    char opt_dir[256];
+
+    snprintf(etc_dir, sizeof(etc_dir), "%s%s", staging_directory, "/etc");
+    snprintf(usr_dir, sizeof(usr_dir), "%s%s", staging_directory, "/usr");
+    snprintf(opt_dir, sizeof(opt_dir), "%s%s", staging_directory, "/opt");
+
+    char line[512];
+
+    DIR *etc_dr = opendir(etc_dir);
+
+    if (etc_dr) {
+        while ((de = readdir(etc_dr)) != NULL) {
+            snprintf(line, sizeof(line), "%s%s", "/etc/", de->d_name);
+            fprintf(fptr, "%s", line);
+        }
+        closedir(etc_dr);
+    }
+
+    DIR *usr_dr = opendir(usr_dir);
+
+    if (usr_dr) {
+        while ((de = readdir(usr_dr)) != NULL) {
+            snprintf(line, sizeof(line), "%s%s", "/usr/", de->d_name);
+            fprintf(fptr, "%s", line);
+        }
+        closedir(usr_dr);
+    }
+
+    DIR *opt_dr = opendir(opt_dir);
+    if (opt_dr) {
+        while ((de = readdir(opt_dr)) != NULL) {
+            snprintf(line, sizeof(line), "%s%s", "/opt/", de->d_name);
+            fprintf(fptr, "%s", line);
+        }
+        closedir(opt_dr);
+    }
+    return 0;
+}
+
+void copy_file(char src[], char dst[]) {
+    int source_fd = open(src, O_RDONLY);
+    if (source_fd < 0) return;
+
+    struct stat st;
+    fstat(source_fd, &st);
+
+    int dest_fd = open(dst, O_WRONLY | O_CREAT | O_TRUNC, st.st_mode & 0777);
+    if (dest_fd < 0) {
+        close(source_fd);
+        return;
+    }
+    char buffer[8192];
+    ssize_t n;
+    while ((n = read(source_fd, buffer, sizeof(buffer))) > 0) {
+        write(dest_fd, buffer, n);
+    }
+    close(source_fd);
+    close(dest_fd);
+}
+
+void install_tree(char src_dir[], char dst_dir[]) {
+    DIR *dir = opendir(src_dir);
+    if (!dir) return;
+    struct dirent *entry;
+    while ((entry = readdir(dir)) != NULL) {
+        if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0) {
+            continue;
+        }
+        char src_path[1024];
+        char dst_path[1024];
+        snprintf(src_path, sizeof(src_path), "%s/%s", src_dir, entry->d_name);
+        snprintf(dst_path, sizeof(dst_path), "%s/%s", dst_dir, entry->d_name);
+
+        struct stat st;
+        if (stat(src_path, &st) < 0) continue;
+        if (S_ISDIR(st.st_mode)) {
+            mkdir(dst_path, 0755);
+            install_tree(src_path, dst_path);
+        } else if (S_ISREG(st.st_mode)) {
+            copy_file(src_path, dst_path);
+        }
+    }
+    closedir(dir);
+}
+
+void move_staging_to_root(char staging_directory[]) {
+    char staging_etc[256];
+    char staging_usr[256];
+    char staging_opt[256];
+
+    snprintf(staging_etc, sizeof(staging_etc), "%s%s", staging_directory, "/etc");
+    snprintf(staging_usr, sizeof(staging_usr), "%s%s", staging_directory, "/usr");
+    snprintf(staging_opt, sizeof(staging_opt), "%s%s", staging_directory, "/opt");
+
+    install_tree(staging_etc, "/etc");
+    install_tree(staging_usr, "/usr");
+    install_tree(staging_opt, "/opt");
 }
 
 int mkdir_helper(char directory[]) {
@@ -130,10 +236,6 @@ int run_bwrap(char staging_dir[], char installer_script[], char source_directory
         NULL                 // Marks the end of the argument array
     };
 
-    for (int i = 0; args[i] != NULL; i++) {
-        printf("arg[%d]: %s\n", i, args[i]);
-    }
-
     pid_t pid = fork(); // create new process
     if (pid < 0) {
         perror("Failed to fork");
@@ -234,6 +336,8 @@ int install(char package_name[], char parent[], int check_hashes) {
 
     prepare_install(installer_path, script_path);
     run_bwrap(staging_directory, installer_path, source_directory);
+    generate_manifest(staging_directory, package_name);
+    move_staging_to_root(staging_directory);
 
     FILE *install_fptr = fopen(install_path, "w");
 
