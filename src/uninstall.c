@@ -7,6 +7,50 @@
 
 #define BASE_DIR "/var/db/centaur/packages"
 
+void read_and_remove_from_manifest(char manifest_file[]) {
+    FILE *fptr = fopen(manifest_file, "r");
+    if (!fptr) {
+        perror("Could not open manifest file");
+        exit(1);
+    }
+    int line_count = 0;
+    char buffer[1024];
+    while (fgets(buffer, sizeof(buffer), fptr)) {
+        line_count++;
+    }
+    rewind(fptr);
+    if (line_count == 0) {
+        fclose(fptr);
+        return;
+    }
+
+    char **lines = malloc(line_count * sizeof(char *));
+    if (!lines) {
+        perror("Failed to allocate memory");
+        fclose(fptr);
+        exit(1);
+    }
+
+    int i = 0;
+    while (fgets(buffer, sizeof(buffer), fptr) && i < line_count) {
+        buffer[strcspn(buffer, "\r\n")] = 0;
+        lines[i] = strdup(buffer);
+        i++;
+    }
+    fclose(fptr);
+
+    for (int j = line_count-1; j >= 0; j--) {
+        if (lines[j][0] == '\0') continue;
+        if (remove(lines[j]) == 0) {
+            printf("Removed: %s\n", lines[j]);
+        } else {
+            fprintf(stderr, "Warning: Could not remove %s\n", lines[j]);
+        }
+        free(lines[j]);
+    }
+    free(lines);
+}
+
 int remove_line(const char *file, const char *target) {
     // weird way because theres no inbuilt func :(
     FILE *in = fopen(file, "r");
@@ -185,18 +229,11 @@ int uninstall(char input[], int force) {
         exit(1);
     }
 
-    char uninstallPath[200];
-    snprintf(uninstallPath, sizeof(uninstallPath), "%s/uninstall/%s", BASE_DIR, package);
-
     if (force == 1) {
         remove_parent_from_installed_versions_of_dep("/var/db/centaur/packages/installed", installPath);
         if (remove(installPath)) {
             printf("%s\n", "Error removing install file. Something is definitely really wrong...");
         }
-        if (remove(uninstallPath)) {
-            printf("%s\n", "Error removing uninstall file, but I'll let it slide ;P");
-        }
-
         printf("\033[32m%s %s\033[0m\n", package, "uninstalled!");
         printf("%s\n", "FILES RELATED TO PACKAGE WILL PROBABLY STILL EXIST!");
 
@@ -205,16 +242,19 @@ int uninstall(char input[], int force) {
 
     dep_check(installPath, package);
 
-    read_execute(uninstallPath, NULL, force, true);
+    char manifest_file[256];
+    snprintf(manifest_file, sizeof(manifest_file), "%s%s%s", "/var/db/centaur/packages/installed/", package, ".manifest");
+    printf("%s\n", manifest_file);
+    read_and_remove_from_manifest(manifest_file);
     
     remove_parent_from_installed_versions_of_dep("/var/db/centaur/packages/installed", installPath);
 
 
     printf("\033[32m%s %s\033[0m\n", package, "uninstalled!");
 
-    if (remove(installPath) | remove(uninstallPath)) { // ensure both run
+    if (remove(installPath) | remove(manifest_file)) { // ensure both run
         if (force != 1) {
-            perror("Error removing install or uninstall files");
+            perror("Error removing install or manifest file");
         }
     }
     return 0;

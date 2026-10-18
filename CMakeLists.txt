@@ -21,11 +21,23 @@ add_executable(centaur
   src/update.c
 )
 
+find_program(BWRAP_EXECUTABLE NAMES bwrap)
+if (NOT BWRAP_EXECUTABLE)
+    message(FATAL_ERROR "Bubblewrap (bwrap) is required to build and run centaur. It was not found.")
+else()
+    message(STATUS "Found bwrap: ${BWRAP_EXECUTABLE}")
+endif()
+
 find_package(CURL REQUIRED)
+
 find_package(LibArchive REQUIRED)
 
 target_link_libraries(centaur PRIVATE CURL::libcurl)
 target_link_libraries(centaur PRIVATE LibArchive::LibArchive)
+
+target_compile_definitions(centaur PRIVATE
+    BWRAP_PATH="${BWRAP_EXECUTABLE}"
+)
 
 target_compile_options(centaur PRIVATE
   -Wall -Wextra -Wpedantic

@@ -115,7 +115,7 @@ int main(int argc, char *argv[]) {
     // why can't c do switch case for strings >:(
     if (strcmp(instruction, "install") == 0) {
         if (strcmp(package, "HASHES") == 0) {
-            printf("%s\n", "nice tru...");
+            printf("%s\n", "nice try...");
             return 1;
         }
 
