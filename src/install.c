@@ -20,25 +20,28 @@
 
 #define BASE_DIR "/var/db/centaur/packages"
 
-void manifest_helper(char dr[], char manifest_file[], char root_dir[]) {
+void manifest_helper(char dr[], FILE *fptr, char root_prefix[]) {
     DIR *dir = opendir(dr);
-    if (dir){
-        FILE *fptr = fopen(manifest_file, "a");
-        if (!fptr) {
-            perror("Could not open manifest file");
-            exit(1);
+    if (!dir) return;
+
+    struct dirent *de;
+    while ((de = readdir(dir)) != NULL) {
+        if (strcmp(de->d_name, ".") == 0 || strcmp(de->d_name, "..") == 0) {
+            continue;
         }
-        struct dirent *de;
-        char line[512];
-        while ((de = readdir(dir)) != NULL) {
-            if (strcmp(de->d_name, ".") == 0 || strcmp(de->d_name, "..") == 0) {
-                continue;
-            }
-            snprintf(line, sizeof(line), "%s%s\n", root_dir, de->d_name);
-            fprintf(fptr, "%s", line);
+        char sub_path[1024];
+        char new_root_dir[1024];
+        snprintf(sub_path, sizeof(sub_path), "%s/%s", dr, de->d_name);
+        snprintf(new_root_dir, sizeof(new_root_dir), "%s/%s", root_prefix, de->d_name);
+
+        struct stat st;
+        if (lstat(sub_path, &st) < 0) continue;
+        fprintf(fptr, "%s\n", new_root_dir);
+        if (S_ISDIR(st.st_mode) && !S_ISLNK(st.st_mode)) {
+            manifest_helper(sub_path, fptr, new_root_dir);
         }
-        closedir(dir);
     }
+    closedir(dir);
 }
 
 int generate_manifest(char staging_directory[], char full_package_name[]) {
@@ -49,7 +52,6 @@ int generate_manifest(char staging_directory[], char full_package_name[]) {
         perror("Could not create manifest file");
         exit(1);
     }
-    fclose(fptr);
 
     char etc_dir[256];
     char usr_dir[256];
@@ -59,9 +61,9 @@ int generate_manifest(char staging_directory[], char full_package_name[]) {
     snprintf(usr_dir, sizeof(usr_dir), "%s%s", staging_directory, "/usr");
     snprintf(opt_dir, sizeof(opt_dir), "%s%s", staging_directory, "/opt");
 
-    manifest_helper(etc_dir, manifest_file, "/etc/");
-    manifest_helper(usr_dir, manifest_file, "/usr/");
-    manifest_helper(opt_dir, manifest_file, "/opt/");
+    manifest_helper(etc_dir, fptr, "/etc");
+    manifest_helper(usr_dir, fptr, "/usr");
+    manifest_helper(opt_dir, fptr, "/opt");
 
     return 0;
 }
@@ -329,9 +331,12 @@ int install(char package_name[], char parent[], int check_hashes) {
     char installer_path[512];
     snprintf(installer_path, sizeof(installer_path), "%s/centaur_installer.sh", source_directory);
 
+    char latest_sub_centaur[256];
+    snprintf(latest_sub_centaur, sizeof(latest_sub_centaur), "%s", latest);
+    latest_sub_centaur[strlen(latest_sub_centaur)-8] = '\0';
     prepare_install(installer_path, script_path);
     run_bwrap(staging_directory, installer_path, source_directory);
-    generate_manifest(staging_directory, package_name);
+    generate_manifest(staging_directory, latest_sub_centaur);
     move_staging_to_root(staging_directory);
 
     FILE *install_fptr = fopen(install_path, "w");
@@ -360,32 +365,6 @@ int install(char package_name[], char parent[], int check_hashes) {
         fclose(fptr);
         exit(1);
     }
-
-    char *createBlankUninstallFile = get_meta_variable_value(script_path, "create_blank_uninstall_file");
-
-    char uninstall_file[256];
-    snprintf(uninstall_file, sizeof(uninstall_file), "%s/uninstall/%s", BASE_DIR, latest);
-
-    uninstall_file[strlen(uninstall_file)-8] = '\0';
-
-    if (createBlankUninstallFile) {
-        FILE *fptr = fopen(uninstall_file, "w");
-        fclose(fptr);
-    } else {
-        FILE *fptr = fopen(script_path, "r");
-        char line[512];
-        while (fgets(line, sizeof(line), fptr) && strcmp(line, "[uninstall]\n") != 0) {
-            // skip until [uninstall]
-        }
-        FILE *uninstall_fptr = fopen(uninstall_file, "w");
-        while (fgets(line, sizeof(line), fptr) && strcmp(line, "[/uninstall]\n") != 0) {
-            fprintf(uninstall_fptr, "%s", line);
-        }
-        fclose(fptr);
-        fclose(uninstall_fptr);
-    }
-
-    free(createBlankUninstallFile);
 
     add_deps_to_file(package_name, install_path);
     return 0;
