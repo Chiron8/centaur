@@ -14,8 +14,3 @@ bash ~/quicksplat/install/setup_linux.sh
 echo "quicksplat directory located at ~/quicksplat"
 echo "Finished!"
 [/install]
-
-[uninstall]
-rm -r ~/quicksplat
-rm /usr/bin/quicksplat
-[/uninstall]

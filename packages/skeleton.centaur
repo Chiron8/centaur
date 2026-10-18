@@ -2,12 +2,11 @@
 name = ""
 version = ""
 dependencies = ""
+source = ""
+checksum = ""
+source_directory = ""
 [/meta]
 
 [install]
 # add your install script here
 [/install]
-
-[uninstall]
-# add your uninstall script here
-[/uninstall]

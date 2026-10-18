@@ -13,10 +13,3 @@ source_directory = "htop-3.5.1"
 make
 make install
 [/install]
-
-[uninstall]
-echo "Uninstalling..."
-rm -rf ~/.config/htop
-rm /usr/local/bin/htop
-echo "Finished!"
-[/uninstall]
