@@ -45,7 +45,7 @@ void manifest_helper(char dr[], FILE *fptr, char root_prefix[]) {
 
 int generate_manifest(char staging_directory[], char full_package_name[]) {
     char manifest_file[512];
-    snprintf(manifest_file, sizeof(manifest_file), "%s%s%s", "/var/db/centaur/packages/installed/", full_package_name, ".manifest");
+    snprintf(manifest_file, sizeof(manifest_file), "%s%s%s", "/var/db/centaur/packages/manifests/", full_package_name, ".manifest");
     FILE *fptr = fopen(manifest_file, "w");
     if (!fptr) {
         perror("Could not create manifest file");
@@ -163,7 +163,7 @@ int download_tarball(char install_file[], char package_name[]) {
     char *source = get_meta_variable_value(install_file, "source");
     char *checksum = get_meta_variable_value(install_file, "checksum");
     char download_file[256];
-    snprintf(download_file, sizeof(download_file), "%s%s%s", "/tmp/centaur/", package_name, "TARBALL");
+    snprintf(download_file, sizeof(download_file), "%s%s%s", "/var/db/centaur/tmp/", package_name, "TARBALL");
     curl_tarball(source, download_file);
     if (strcmp(calculate_hash(download_file), checksum) != 0) {
         printf("%s%s%s\n", ANSI_RED, "TARBALL CHECKSUMS DO NOT MATCH!", ANSI_CLEAR);
@@ -172,7 +172,7 @@ int download_tarball(char install_file[], char package_name[]) {
         exit(1);
     }
     char source_directory[256];
-    snprintf(source_directory, sizeof(source_directory), "%s%s%s", "/tmp/centaur/", package_name, "SOURCE");
+    snprintf(source_directory, sizeof(source_directory), "%s%s%s", "/var/db/centaur/tmp/", package_name, "SOURCE");
 
     extract_tar(download_file, source_directory);
 
@@ -183,24 +183,23 @@ int download_tarball(char install_file[], char package_name[]) {
 
 int run_bwrap(char staging_dir[], char installer_script[], char source_directory[]) {
     // I hope you can forgive me using AI to generate these blocks
-    char usr_stage[512], usr_work[512];
-    char etc_stage[512], etc_work[512];
-    char var_stage[512], var_work[512];
-    char opt_stage[512], opt_work[512];
+    char usr_stage[512];
+    char usr_local_stage[512];
+    char etc_stage[512];
+    char var_stage[512];
+    char opt_stage[512];
 
     snprintf(usr_stage, sizeof(usr_stage), "%s/usr", staging_dir);
-    snprintf(usr_work, sizeof(usr_work), "%s/usr_work", staging_dir);
+    snprintf(usr_local_stage, sizeof(usr_local_stage), "%s/usr/local", staging_dir);
     snprintf(etc_stage, sizeof(etc_stage), "%s/etc", staging_dir);
-    snprintf(etc_work, sizeof(etc_work), "%s/etc_work", staging_dir);
     snprintf(var_stage, sizeof(var_stage), "%s/var", staging_dir);
-    snprintf(var_work, sizeof(var_work), "%s/var_work", staging_dir);
     snprintf(opt_stage, sizeof(opt_stage), "%s/opt", staging_dir);
-    snprintf(opt_work, sizeof(opt_work), "%s/opt_work", staging_dir);
 
-    mkdir_helper(usr_stage);   mkdir_helper(usr_work);
-    mkdir_helper(etc_stage);   mkdir_helper(etc_work);
-    mkdir_helper(var_stage);   mkdir_helper(var_work);
-    mkdir_helper(opt_stage);   mkdir_helper(opt_work);
+    mkdir_helper(usr_stage);
+    mkdir_helper(usr_local_stage);
+    mkdir_helper(etc_stage);
+    mkdir_helper(var_stage);
+    mkdir_helper(opt_stage);
 
     char *args[] = {
         BWRAP_PATH,          // bwrap executable defined by CMAKE
@@ -209,22 +208,14 @@ int run_bwrap(char staging_dir[], char installer_script[], char source_directory
         "--ro-bind", "/", "/", // Keep root fs read-only so host toolchain & /bin/sh remain visible
         "--proc", "/proc",   // Essential kernel virtual filesystem
         "--dev", "/dev",     // Essential device pseudo-files
-
-        // --- /usr Overlay ---
-        "--overlay-src", "/usr",
-        "--overlay", usr_stage, usr_work, "/usr",
-
-        // --- /etc Overlay ---
-        "--overlay-src", "/etc",
-        "--overlay", etc_stage, etc_work, "/etc",
-
-        // --- /var Overlay ---
-        //"--overlay-src", "/var",
-        //"--overlay", var_stage, var_work, "/var",
-
-        // --- /opt Overlay ---
-        "--overlay-src", "/opt",
-        "--overlay", opt_stage, opt_work, "/opt",
+        "--tmpfs", "/tmp", // tmp directory for build tools
+        "--tmpfs", "/run", // i don't really know what run does but if fixed some errors so...
+        
+        "--bind", "/var/db/centaur/tmp", "/var/db/centaur/tmp", // make sure tmp directory is still writeabl
+        
+        "--bind", usr_local_stage, "/usr/local",
+        "--bind", etc_stage, "/etc",
+        "--bind", opt_stage, "/opt",
 
         "--chdir", source_directory,
         "--",                // Separate bwrap flags from the actual command
@@ -320,10 +311,10 @@ int install(char package_name[], char parent[], int check_hashes) {
     char *extracted_folder_name = get_meta_variable_value(script_path, "source_directory");
 
     char source_directory[256];
-    snprintf(source_directory, sizeof(source_directory), "%s%s%s/%s", "/tmp/centaur/", package_name, "SOURCE", extracted_folder_name);
+    snprintf(source_directory, sizeof(source_directory), "%s%s%s/%s", "/var/db/centaur/tmp/", package_name, "SOURCE", extracted_folder_name);
 
     char staging_directory[256];
-    snprintf(staging_directory, sizeof(staging_directory), "%s%s%s", "/tmp/centaur/", package_name, "STAGING");
+    snprintf(staging_directory, sizeof(staging_directory), "%s%s%s", "/var/db/centaur/tmp/", package_name, "STAGING");
 
     mkdir_helper(staging_directory);
 

@@ -243,7 +243,7 @@ int uninstall(char input[], int force) {
     dep_check(installPath, package);
 
     char manifest_file[256];
-    snprintf(manifest_file, sizeof(manifest_file), "%s%s%s", "/var/db/centaur/packages/installed/", package, ".manifest");
+    snprintf(manifest_file, sizeof(manifest_file), "%s%s%s", "/var/db/centaur/packages/manifests/", package, ".manifest");
     printf("%s\n", manifest_file);
     read_and_remove_from_manifest(manifest_file);
     

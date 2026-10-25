@@ -69,7 +69,6 @@ install(DIRECTORY doc/
 
 install(CODE [[
   file(MAKE_DIRECTORY "/var/db/centaur/packages/installed")
-  file(MAKE_DIRECTORY "/var/db/centaur/packages/uninstall")
-  file(MAKE_DIRECTORY "/var/db/centaur/packages/world")
+  file(MAKE_DIRECTORY "/var/db/centaur/packages/manifests")
   file(MAKE_DIRECTORY "/var/db/centaur/tmp")
 ]])
