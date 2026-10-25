@@ -1,7 +1,0 @@
-[meta]
-dependencies = ""
-[/meta]
-
-[install]
-echo "hello!"
-[/install]

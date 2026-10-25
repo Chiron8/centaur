@@ -1,3 +1,4 @@
+#define _GNU_SOURCE
 #include <stdio.h>
 #include <unistd.h>
 #include <string.h>
@@ -8,6 +9,7 @@
 #include <stdlib.h>
 #include <sys/types.h>
 #include <fcntl.h>
+#include <ftw.h>
 
 #include "sha256.h"
 #include "parse.h"
@@ -18,6 +20,28 @@
 #include "sync.h"
 
 #define BASE_DIR "/var/db/centaur/packages"
+
+static int rmFiles(const char *pathname, const struct stat *sbuf, int type, struct FTW *ftwb)
+{
+    // remove warnings about unused params
+    (void)sbuf;
+    (void)type;
+    (void)ftwb;
+    if(remove(pathname) < 0)
+    {
+        perror("ERROR: remove");
+        return -1;
+    }
+    return 0;
+}
+
+int remove_staging(char staging_directory[]) {
+    if (nftw(staging_directory, rmFiles,10, FTW_DEPTH|FTW_MOUNT|FTW_PHYS) < 0) {
+        perror("Couldn't remove staging dir");
+        return 1;
+    }
+    return 0;
+}
 
 void manifest_helper(char dr[], FILE *fptr, char root_prefix[]) {
     DIR *dir = opendir(dr);
@@ -325,7 +349,13 @@ int install(char package_name[], char parent[], int check_hashes) {
     snprintf(latest_sub_centaur, sizeof(latest_sub_centaur), "%s", latest);
     latest_sub_centaur[strlen(latest_sub_centaur)-8] = '\0';
     prepare_install(installer_path, script_path);
-    run_bwrap(staging_directory, installer_path, source_directory);
+    int bwrap_code = run_bwrap(staging_directory, installer_path, source_directory);
+    if (bwrap_code != 0) {
+        remove_staging(staging_directory);
+        perror("Something went wrong installing the package");
+        exit(1);
+    }
+    remove_staging(staging_directory);
     generate_manifest(staging_directory, latest_sub_centaur);
     move_staging_to_root(staging_directory);
 

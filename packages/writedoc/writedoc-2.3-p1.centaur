@@ -1,27 +1,15 @@
 [meta]
 name = "writedoc"
 version = "2.3-p1"
-dependencies = "example"
-source = "wget https://github.com/Chiron8/writedoc/archive/refs/tags/v2.3-p1.tar.gz"
+dependencies = ""
+source = "https://github.com/Chiron8/writedoc/archive/refs/tags/v2.3-p1.tar.gz"
 checksum = "3cdbd6d4c884a5fb55152db9408b1fd2ae38d9f4bb64943c295407e5cd8f2bbd"
 source_directory = "writedoc-2.3-p1"
 [/meta]
 
 [install]
-echo "Downloading..."
-cd /tmp/centaur
-wget https://github.com/Chiron8/writedoc/archive/refs/tags/v2.3-p1.tar.gz
-
 echo "Installing..."
-tar -xf v2.3-p1.tar.gz
-cd /tmp/centaur/writedoc-2.3-p1/
 ./install.sh
-
-echo "Finished installing! "
-echo "Tidying Files..."
-cd ../
-rm v2.3-p1.tar.gz
-rm -r writedoc-2.3-p1/
 
 echo "Finished!"
 [/install]
