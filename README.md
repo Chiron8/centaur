@@ -19,24 +19,41 @@ To uninstall, centaur checks for any dependency conflicts before parsing the uni
 For more information about how the other functions work, [Read the wiki](https://github.com/Chiron8/centaur/wiki) or look at the code yourself!
 
 ## How to install
-To use centaur you need the following dependencies:
+
+### Pre-built binary
+To install centaur using a pre-built binary you need the following dependencies:
 
 - git
-- cmake
-- make
-- wget (most packages use this to download their tarballs)
+- libcurl
+- libarchive
+- bubblewrap
 
-To install:
+To install the pre-built binary:
 ```bash
-# Clone the repo
 git clone https://github.com/Chiron8/centaur
 cd centaur
 
-# Create build directory
+# Install the binary, create directories and copy files
+./install.sh
+```
+
+### From source
+To install centaur from source you need the following dependencies:
+- git
+- make
+- cmake
+- libcurl
+- libarchive
+- bubblewrap
+
+To install from source:
+```bash
+git clone https://github.com/Chiron8/centaur
+cd centaur
+
 mkdir build
 cd build
 
-# Install
 cmake ..
 make
 sudo cmake --install .
