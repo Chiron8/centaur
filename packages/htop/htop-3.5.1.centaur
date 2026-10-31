@@ -1,3 +1,4 @@
+# currently missing ncurses as a dependency
 [meta]
 name = "htop"
 version = "3.5.1"
