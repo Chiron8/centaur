@@ -1,0 +1,15 @@
+[meta]
+name = "tmux"
+version = "3.8"
+dependencies = "libevent"
+source = "https://github.com/tmux/tmux/releases/download/3.8/tmux-3.8.tar.gz"
+checksum = "e79c699c7e949dccd0a4a125e17b8d1261e311b16979dbc8eb34542f3966d82e"
+source_directory = "tmux-3.8"
+[/meta]
+
+[install]
+./autogen.sh
+./configure
+make
+make install
+[/install]
