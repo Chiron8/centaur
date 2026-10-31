@@ -1,7 +1,7 @@
 [meta]
 name = "htop"
 version = "3.5.1"
-dependencies = "ncurses"
+dependencies = ""
 source = "https://github.com/htop-dev/htop/archive/refs/tags/3.5.1.tar.gz"
 checksum = "dfc4a09845e9bc86f466a722e62b8f87d59028ff39689077ff2257a6a605061d"
 source_directory = "htop-3.5.1"

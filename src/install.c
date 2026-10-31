@@ -355,9 +355,9 @@ int install(char package_name[], char parent[], int check_hashes) {
         perror("Something went wrong installing the package");
         exit(1);
     }
-    remove_staging(staging_directory);
     generate_manifest(staging_directory, latest_sub_centaur);
     move_staging_to_root(staging_directory);
+    remove_staging(staging_directory);
 
     FILE *install_fptr = fopen(install_path, "w");
 
