@@ -1,7 +1,6 @@
 # Centaur - Package Manager for ChironOS
 
-![centaur demo gif](https://github.com/Chiron8/centaur/blob/gif/centaur.gif)
-
+[![View the demo!](https://asciinema.org/a/SAMGh8PR2qojFlAt.svg)](https://asciinema.org/a/SAMGh8PR2qojFlAt)
 ## What is Centaur?
 
 Centaur is a compile based package manager designed for UNIX-like operating systems and is the default for ChironOS. Instead of downloading a pre-built binary file, centaur downloads the source code and compiles it on-device.
