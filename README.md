@@ -60,15 +60,6 @@ sudo cmake --install .
 
 ## Usage: [Read the wiki](https://github.com/Chiron8/centaur/wiki/3.-Usage)
 
-## Stardance reviewer?
-
-Please make sure you use a virtual machine, this package manager can corrupt packages that are already installed on your computer (i'm speaking from experience)
-Please see below a couple recommended commands that you can use to test centaur:
-- `sudo centaur install htop` this install htop, a system monitor
-- `sudo centaur install tmux` this install tmux and its dependency (libevent)
-- `centaur list` this shows packages currently installed
-- `sudo centaur uninstall tmux-3.8` this will uninstall tmux
-
 ## Todo:
 - [x] Use sandboxing when installing packages (broken package = bad)
 - [x] Create manifest when installing so uninstalling is easier and more reliable :)
